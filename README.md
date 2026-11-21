@@ -30,3 +30,20 @@ If you are developing a production application, we recommend enabling type-aware
 ```
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+
+## Data
+
+Wards, roads and repair work orders in the Citizen view come from the
+[Claude Impact Lab Mumbai dataset](https://github.com/SumeetGDoshi/Claude-Impact-Labs-data-2)
+(CC BY 4.0). That data is **synthetic**: it is not BMC data and all contractors are fictional.
+
+`src/data/civic.json` is generated from it:
+
+```sh
+git clone https://github.com/SumeetGDoshi/Claude-Impact-Labs-data-2 ../Claude-Impact-Labs-data-2
+node scripts/build-data.mjs ../Claude-Impact-Labs-data-2/data
+```
+
+A new complaint is matched to a work order of the same category on the nearest road in the
+chosen ward, and its status replays that tender's real timeline on a fast demo clock
+(`HOUR_MS` in `src/pages/citizen/mock.ts`).
