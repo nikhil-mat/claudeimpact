@@ -1,0 +1,468 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-21T10:24:22.384363+00:00",
+  "title": "Design System: Follow the Rupee (Corporator view)",
+  "extensions": {
+    "colorMeta": {
+      "file-shell": {
+        "role": "secondary",
+        "displayName": "Khaki File Cover",
+        "canonical": "#c9ae74",
+        "darkValue": "#a8905c",
+        "tonalRamp": [
+          "#302a1c",
+          "#635027",
+          "#8f7338",
+          "#b9964b",
+          "#cab077",
+          "#dbc9a3",
+          "#ebe1cc",
+          "#f6f3ef"
+        ]
+      },
+      "file-shell-ink": {
+        "role": "neutral",
+        "displayName": "Shell Ink",
+        "canonical": "#1c1b19",
+        "darkValue": "#15140f",
+        "tonalRamp": [
+          "#282725",
+          "#494641",
+          "#69655e",
+          "#89847b",
+          "#a6a29b",
+          "#c3c0bc",
+          "#dddcd9",
+          "#f3f2f2"
+        ]
+      },
+      "file-shell-muted": {
+        "role": "neutral",
+        "displayName": "Shell Muted",
+        "canonical": "#4a3f27",
+        "darkValue": "#3a3220",
+        "tonalRamp": [
+          "#2d291f",
+          "#5a4d30",
+          "#826f45",
+          "#a9905b",
+          "#beac83",
+          "#d3c7ac",
+          "#e6dfd0",
+          "#f5f3f0"
+        ]
+      },
+      "red-tape": {
+        "role": "secondary",
+        "displayName": "Red Tape",
+        "canonical": "#b3261e",
+        "darkValue": "#d2463b",
+        "tonalRamp": [
+          "#371816",
+          "#761914",
+          "#aa241d",
+          "#db3329",
+          "#e4655d",
+          "#ed9792",
+          "#f5c5c2",
+          "#f8eded"
+        ]
+      },
+      "board-ground": {
+        "role": "neutral",
+        "displayName": "Board Ground",
+        "canonical": "#e9e4d3",
+        "darkValue": "#14150f",
+        "tonalRamp": [
+          "#2e2a1f",
+          "#5c512e",
+          "#857642",
+          "#ac9958",
+          "#c0b281",
+          "#d4cbaa",
+          "#e7e2cf",
+          "#f5f4f0"
+        ]
+      },
+      "noting-sheet": {
+        "role": "neutral",
+        "displayName": "Noting-Sheet Green",
+        "canonical": "#eef2e3",
+        "darkValue": "#1e2219",
+        "tonalRamp": [
+          "#2a2f1e",
+          "#515e2c",
+          "#74883f",
+          "#97b054",
+          "#b1c37e",
+          "#cad7a8",
+          "#e1e8ce",
+          "#f4f5ef"
+        ]
+      },
+      "noting-sheet-nested": {
+        "role": "neutral",
+        "displayName": "Nested Sheet",
+        "canonical": "#e3e9d4",
+        "darkValue": "#262b20",
+        "tonalRamp": [
+          "#292e1f",
+          "#4e5b2f",
+          "#718443",
+          "#93aa5a",
+          "#aebf82",
+          "#c8d4ab",
+          "#e0e7d0",
+          "#f3f5f0"
+        ]
+      },
+      "sheet-rule": {
+        "role": "neutral",
+        "displayName": "Sheet Rule",
+        "canonical": "#c5cdb1",
+        "darkValue": "#353c2c",
+        "tonalRamp": [
+          "#282b21",
+          "#4b5436",
+          "#6d794e",
+          "#8e9d67",
+          "#a9b58c",
+          "#c5cdb1",
+          "#dfe3d3",
+          "#f3f4f1"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1c1b19",
+        "darkValue": "#ece8d8",
+        "tonalRamp": [
+          "#282725",
+          "#494641",
+          "#69655e",
+          "#89847b",
+          "#a6a29b",
+          "#c3c0bc",
+          "#dddcd9",
+          "#f3f2f2"
+        ]
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Secondary Ink",
+        "canonical": "#4b4a3f",
+        "darkValue": "#c4bfa8",
+        "tonalRamp": [
+          "#282824",
+          "#4b4a3f",
+          "#6c6b5b",
+          "#8d8b77",
+          "#a9a798",
+          "#c5c4ba",
+          "#deded8",
+          "#f3f3f2"
+        ]
+      },
+      "ink-tertiary": {
+        "role": "neutral",
+        "displayName": "Tertiary Ink",
+        "canonical": "#6d6b58",
+        "darkValue": "#9a957f",
+        "tonalRamp": [
+          "#292824",
+          "#4c4b3e",
+          "#6e6c59",
+          "#8f8d75",
+          "#aba997",
+          "#c6c5b8",
+          "#dfded7",
+          "#f3f3f1"
+        ]
+      },
+      "stamp-violet": {
+        "role": "primary",
+        "displayName": "Stamp-Pad Violet",
+        "canonical": "#5b3e96",
+        "darkValue": "#b9a2ec",
+        "tonalRamp": [
+          "#231d30",
+          "#3b2861",
+          "#553a8d",
+          "#704eb6",
+          "#9379c8",
+          "#b6a5da",
+          "#d6ccea",
+          "#f1eff5"
+        ]
+      },
+      "over-budget-red": {
+        "role": "tertiary",
+        "displayName": "Over-Budget Red",
+        "canonical": "#b3261e",
+        "darkValue": "#ec6a5e",
+        "tonalRamp": [
+          "#371816",
+          "#761914",
+          "#aa241d",
+          "#db3329",
+          "#e4655d",
+          "#ed9792",
+          "#f5c5c2",
+          "#f8eded"
+        ]
+      },
+      "register-green": {
+        "role": "tertiary",
+        "displayName": "Register Green",
+        "canonical": "#2f6b3a",
+        "darkValue": "#6fb57c",
+        "tonalRamp": [
+          "#1d2f21",
+          "#2a6034",
+          "#3d8a4b",
+          "#51b363",
+          "#7cc589",
+          "#a6d8b0",
+          "#cde9d2",
+          "#eff5f0"
+        ]
+      },
+      "overbill-amber": {
+        "role": "tertiary",
+        "displayName": "Overbill Amber",
+        "canonical": "#8a6a1f",
+        "darkValue": "#d6ad4d",
+        "tonalRamp": [
+          "#352c18",
+          "#705619",
+          "#a27d24",
+          "#d1a233",
+          "#dcb965",
+          "#e8cf97",
+          "#f2e4c5",
+          "#f7f4ed"
+        ]
+      },
+      "stamp-violet-wash": {
+        "role": "primary",
+        "displayName": "Stamp Wash",
+        "canonical": "rgba(91, 62, 150, 0.08)",
+        "darkValue": "rgba(185, 162, 236, 0.1)",
+        "tonalRamp": [
+          "#231d30",
+          "#3b2861",
+          "#553a8d",
+          "#704eb6",
+          "#9379c8",
+          "#b6a5da",
+          "#d6ccea",
+          "#f1eff5"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "hero": {
+        "displayName": "Hero",
+        "purpose": "The single giant Rs 64 numeral."
+      },
+      "verdict": {
+        "displayName": "Verdict",
+        "purpose": "The verdict sentence."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings and brand name."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Annexure titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default text."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Tables, drawers, legends."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Stamps, table heads, chips."
+      },
+      "file-mark": {
+        "displayName": "File Mark",
+        "purpose": "Courier Prime for ids, file plate, source chips and the trail only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-sheet",
+        "value": "0 1px 2px rgba(60, 48, 20, 0.08), 0 6px 18px -8px rgba(60, 48, 20, 0.18)",
+        "purpose": "Ward map container only; all other sheets are flat with a 1px rule. Dark theme: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px -10px rgba(0,0,0,0.6)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-fast",
+        "value": "filter 0.12s, border-color 0.12s",
+        "purpose": "Register segments and chip summaries; only under prefers-reduced-motion: no-preference."
+      },
+      {
+        "name": "chevron-turn",
+        "value": "transform 0.15s ease",
+        "purpose": "Annexure chevron; disabled under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "collapse",
+        "value": "1099px"
+      },
+      {
+        "name": "map-compact",
+        "value": "800px"
+      },
+      {
+        "name": "annexure-stack",
+        "value": "760px"
+      },
+      {
+        "name": "small",
+        "value": "600px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Shell Band + File Plate",
+      "kind": "nav",
+      "refersTo": "file-plate",
+      "description": "Khaki file-cover band with typewriter file plate and standard controls.",
+      "html": "<div class=\"ds-cv\"><div class=\"ds-band\"><span class=\"ds-brand\">Follow the Rupee</span><span class=\"ds-plate\">FILE No. E/MRR/2025</span><a class=\"ds-back\" href=\"#\">All views</a></div><div class=\"ds-tape\"></div></div>",
+      "css": ".ds-cv{font-family:Archivo,'Segoe UI',system-ui,sans-serif;color:#1c1b19;} .ds-band{background:#c9ae74;color:#1c1b19;display:flex;align-items:center;gap:24px;padding:16px}.ds-brand{font-weight:800;font-size:1.5rem;letter-spacing:-.01em}.ds-plate{font-family:'Courier Prime','Courier New',monospace;font-weight:700;border:2px solid #1c1b19;padding:4px 10px;letter-spacing:.04em}.ds-back{margin-left:auto;font-weight:700;font-size:.875rem;color:#1c1b19;text-decoration:underline;text-underline-offset:3px;padding:6px;border-radius:4px}.ds-back:hover{background:#1c1b19;color:#c9ae74}.ds-back:focus-visible{outline:2px solid #5b3e96;outline-offset:2px}.ds-tape{height:3px;background:#b3261e}"
+    },
+    {
+      "name": "Noting Sheet",
+      "kind": "card",
+      "refersTo": "sheet",
+      "description": "Green noting-sheet panel with a 1px sage rule; the only elevation.",
+      "html": "<div class=\"ds-cv\"><section class=\"ds-sheet\"><p>Rs 64 of every Rs 100 was held up.</p></section></div>",
+      "css": ".ds-cv{font-family:Archivo,'Segoe UI',system-ui,sans-serif;color:#1c1b19;} .ds-sheet{background:#eef2e3;border:1px solid #c5cdb1;border-radius:12px;padding:24px 32px;font-size:1.5rem;font-weight:700}.ds-sheet p{margin:0}"
+    },
+    {
+      "name": "Answer Card",
+      "kind": "card",
+      "refersTo": "answer-card",
+      "description": "Sheet with a 4px khaki top tab and a big red KPI numeral.",
+      "html": "<div class=\"ds-cv\"><article class=\"ds-card\"><h3>Whether it lasted</h3><div class=\"ds-kpi\"><strong>31%</strong><span>failed within 30 days</span></div></article></div>",
+      "css": ".ds-cv{font-family:Archivo,'Segoe UI',system-ui,sans-serif;color:#1c1b19;} .ds-card{background:linear-gradient(#c9ae74,#c9ae74) top/100% 4px no-repeat,#eef2e3;border:1px solid #c5cdb1;border-radius:12px;padding:24px}.ds-card h3{margin:0;padding-top:4px;font-size:.8125rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4b4a3f}.ds-kpi strong{display:block;font-size:4rem;font-weight:800;letter-spacing:-.04em;line-height:1;color:#b3261e;font-variant-numeric:tabular-nums}.ds-kpi span{font-weight:600;color:#4b4a3f}"
+    },
+    {
+      "name": "Stamp",
+      "kind": "chip",
+      "refersTo": "stamp",
+      "description": "Rotated violet capsule: NEEDS REVIEW and FOR COMMITTEE only.",
+      "html": "<div class=\"ds-cv\"><span class=\"ds-stamp\">For committee</span></div>",
+      "css": ".ds-cv{font-family:Archivo,'Segoe UI',system-ui,sans-serif;color:#1c1b19;} .ds-stamp{display:inline-block;font:800 .75rem Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#5b3e96;border:2px solid #5b3e96;background:rgba(91,62,150,.08);border-radius:6px;padding:2px 10px;transform:rotate(-2deg);white-space:nowrap}"
+    },
+    {
+      "name": "Source Chip",
+      "kind": "chip",
+      "refersTo": "source-chip",
+      "description": "Typewriter pill that opens the source rows behind a figure.",
+      "html": "<div class=\"ds-cv\"><details class=\"ds-chip\"><summary>work_orders.csv</summary></details></div>",
+      "css": ".ds-cv{font-family:Archivo,'Segoe UI',system-ui,sans-serif;color:#1c1b19;} .ds-chip{display:inline-block;font-family:'Courier Prime','Courier New',monospace;font-size:.75rem}.ds-chip summary{list-style:none;cursor:pointer;padding:2px 8px;border:1px solid #c5cdb1;border-radius:999px;color:#4b4a3f;background:#e3e9d4;white-space:nowrap;transition:border-color .12s}.ds-chip summary::-webkit-details-marker{display:none}.ds-chip summary:hover{border-color:#4b4a3f;color:#1c1b19}.ds-chip summary:focus-visible{outline:2px solid #5b3e96;outline-offset:2px}"
+    },
+    {
+      "name": "Register Bar",
+      "kind": "custom",
+      "refersTo": "register-segment",
+      "description": "Four flush clickable segments showing where each Rs 100 went.",
+      "html": "<div class=\"ds-cv\"><div class=\"ds-bar\"><button style=\"flex:36;background:#2f6b3a\">36</button><button style=\"flex:30;background:#1c1b19\">30</button><button style=\"flex:18;background:#8a6a1f\">18</button><button style=\"flex:16;background:#b3261e\">16</button></div></div>",
+      "css": ".ds-cv{font-family:Archivo,'Segoe UI',system-ui,sans-serif;color:#1c1b19;} .ds-bar{display:flex;gap:3px;height:56px}.ds-bar button{border:0;padding:0 14px;cursor:pointer;min-width:3px;display:flex;align-items:center;font:800 1.5rem Archivo,sans-serif;color:#eef2e3;border-radius:4px;overflow:hidden}.ds-bar button:hover{filter:brightness(1.12)}.ds-bar button:focus-visible{outline:3px solid #5b3e96;outline-offset:3px}"
+    },
+    {
+      "name": "Committee Matter",
+      "kind": "custom",
+      "refersTo": "committee-matter",
+      "description": "Stamped noting entry: WO id headline in Courier, question, and a file-movement trail.",
+      "html": "<div class=\"ds-cv\"><article class=\"ds-matter\"><div><span class=\"ds-no\">Matter 1</span> <span class=\"ds-stamp\" style=\"margin-left:16px\">For committee</span><p class=\"ds-wo\">WO-E-0412</p><p class=\"ds-q\">Why was this road re-laid twice?</p></div><ul class=\"ds-trail\"><li>Complaint</li><li>WO</li><li>Road</li><li>Contractor</li><li>Rs</li></ul></article></div>",
+      "css": ".ds-cv{font-family:Archivo,'Segoe UI',system-ui,sans-serif;color:#1c1b19;} .ds-stamp{display:inline-block;font:800 .75rem Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#5b3e96;border:2px solid #5b3e96;background:rgba(91,62,150,.08);border-radius:6px;padding:2px 10px;transform:rotate(-2deg);white-space:nowrap}.ds-matter{background:linear-gradient(#5b3e96,#5b3e96) top/100% 3px no-repeat,#eef2e3;border:1px solid #c5cdb1;border-radius:12px;padding:24px 32px;display:grid;grid-template-columns:1.1fr 1fr;gap:32px}.ds-no{font-size:.875rem;font-weight:700;color:#5b3e96;letter-spacing:.04em}.ds-wo{margin:16px 0 8px;font-family:'Courier Prime','Courier New',monospace;font-size:1.5rem;font-weight:700;letter-spacing:.02em}.ds-q{margin:0;font-size:1.35rem;line-height:1.35;font-weight:600}.ds-trail{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;font-family:'Courier Prime','Courier New',monospace;font-size:.875rem}.ds-trail li{padding:2px 4px}.ds-trail li+li::before{content:'\\2192';color:#5b3e96;margin-right:8px}"
+    },
+    {
+      "name": "Ward Select",
+      "kind": "input",
+      "refersTo": "select-control",
+      "description": "Standard select on the khaki band with an ink border.",
+      "html": "<div class=\"ds-cv\"><label class=\"ds-sel\">Ward <select><option>E (Byculla)</option></select></label></div>",
+      "css": ".ds-cv{font-family:Archivo,'Segoe UI',system-ui,sans-serif;color:#1c1b19;} .ds-sel{display:flex;align-items:center;gap:8px;font:600 .875rem Archivo,sans-serif;background:#c9ae74;padding:8px}.ds-sel select{font:600 1rem Archivo,sans-serif;padding:8px 12px;min-width:240px;background:#eef2e3;color:#1c1b19;border:1.5px solid #1c1b19;border-radius:8px;cursor:pointer}.ds-sel select:hover{background:#e3e9d4}.ds-sel select:focus-visible{outline:2px solid #5b3e96;outline-offset:2px}"
+    },
+    {
+      "name": "Annexure",
+      "kind": "custom",
+      "refersTo": "annexure",
+      "description": "Collapsible annexure sheet: Courier letter, title, preview figure, chevron.",
+      "html": "<div class=\"ds-cv\"><details class=\"ds-annex\"><summary><span class=\"ds-l\">Annexure A</span><span class=\"ds-t\">Complaints</span><span class=\"ds-p\"><b>412</b> filed</span></summary></details></div>",
+      "css": ".ds-cv{font-family:Archivo,'Segoe UI',system-ui,sans-serif;color:#1c1b19;} .ds-annex{background:#eef2e3;border:1px solid #c5cdb1;border-radius:12px}.ds-annex summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:16px;padding:16px 24px;min-height:56px;border-radius:12px}.ds-annex summary::-webkit-details-marker{display:none}.ds-annex summary:hover{background:#e3e9d4}.ds-annex summary:focus-visible{outline:2px solid #5b3e96;outline-offset:2px}.ds-l{font-family:'Courier Prime','Courier New',monospace;font-weight:700;font-size:.875rem;color:#5b3e96;min-width:6.5ch}.ds-t{font-weight:700;font-size:1.15rem}.ds-p{margin-left:auto;font-size:.875rem;color:#4b4a3f}.ds-p b{font-size:1.15rem;color:#1c1b19;margin-right:4px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Sarkari File",
+    "overview": "The ward's monsoon money trail is set as an official government file. A khaki file-cover band with a red-tape rule sits on top; noting-sheet green panels lie on a paler board; a violet stamp-pad ink marks what the committee must answer. Every number reads as a matter on the record, not as a KPI tile.",
+    "keyCharacteristics": [
+      "Khaki shell band and red-tape rule frame the page; sheets are green-tinted paper on a paler board.",
+      "One violet reserved for flags and committee matters; red only for over budget and failed; green only for money that held.",
+      "Archivo carries all UI and every large numeral (tabular); Courier Prime only for ids and file marks.",
+      "Depth is a 1px sage rule, not a shadow.",
+      "Dark mode is a night-office version of the same file, shell kept khaki."
+    ],
+    "rules": [
+      {
+        "name": "The One Job Rule",
+        "body": "Violet means flag or committee; red means over budget or failed; green means held. No colour borrows another's job, and none is decorative.",
+        "section": "colors"
+      },
+      {
+        "name": "The Four-Segment Ramp Rule",
+        "body": "The Rs100 register bar is exactly four segments: held (green), failed within 30 days (ink), overbilled (amber), billed twice (red). New data categories do not get a fifth hue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tinted Ink Rule",
+        "body": "Text greys are olive-tinted inks (`ink-secondary`, `ink-tertiary`), never neutral grey. All corporator styles read the `--f-*` tokens in `tokens.css`; no hard-coded colours.",
+        "section": "colors"
+      },
+      {
+        "name": "The Typewriter Only Rule",
+        "body": "Courier Prime appears only on file numbers, work-order and complaint ids, source chips, annexure letters and the file-movement trail. Never for prose or headings.",
+        "section": "typography"
+      },
+      {
+        "name": "The Big Numeral Rule",
+        "body": "Key figures are set at 3.25rem or larger (answer-card KPIs clamp 3.25 to 4.5rem) in weight 800 with tight tracking (-0.04em).",
+        "section": "typography"
+      },
+      {
+        "name": "The Single Elevation Rule",
+        "body": "The sheet is the only elevation: a ruled 1px border at rest. Hover and selection change fill, outline or brightness; they do not lift.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do read every colour from the `--f-*` tokens in `src/pages/corporator/tokens.css`; add dark-mode values alongside any new token.",
+      "Do keep violet for flags and committee matters, red for over budget and failed, green for held.",
+      "Do separate surfaces with the 1px sage rule on a noting-sheet fill, and use the 4px spacing scale.",
+      "Do set ids and file numbers in Courier Prime and everything else in Archivo with tabular numerals.",
+      "Do keep controls as standard web controls with the 2px violet focus-visible outline.",
+      "Do word flags as questions for the committee (PRODUCT.md), and keep the stamp as the marker for them."
+    ],
+    "donts": [
+      "Don't use a grey KPI-tile dashboard with a blue accent; that is the category default this world refuses.",
+      "Don't introduce a fifth register-bar hue or reuse violet, red or green outside their jobs.",
+      "Don't add shadows to sheets or cards; hover and selection do not lift.",
+      "Don't apply these tokens to the gateway, Citizen or Ward Officer views; they remain on the older teal theme in `src/index.css` (known scope boundary).",
+      "Don't hard-code colours or fonts in corporator CSS, or load fonts from outside `public/fonts/`."
+    ]
+  }
+}

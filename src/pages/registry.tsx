@@ -57,7 +57,7 @@ export const pages: PageEntry[] = [
     title: 'Corporator',
     description: 'See what your ward is asking for and follow up on it.',
     component: CorporatorView,
-    status: 'planned',
+    status: 'active',
   },
   {
     path: '/ward-officer',

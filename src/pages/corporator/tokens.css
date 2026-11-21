@@ -1,0 +1,95 @@
+/* Sarkari File tokens: the Corporator view's own world. Every corporator style reads these; nothing else should hard-code a colour. */
+@font-face { font-family: 'Archivo'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(/fonts/archivo-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Archivo'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(/fonts/archivo-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/courier-prime-400.woff2) format('woff2'); }
+@font-face { font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/courier-prime-700.woff2) format('woff2'); }
+
+/* The Corporator view breaks out of the shared 960px column; other views are untouched. */
+#root:has(.cv) { max-width: 1440px; padding: 0 32px 64px; }
+
+.cv {
+  /* file board + ink */
+  --f-shell: #c9ae74;          /* khaki file cover: header band */
+  --f-shell-ink: #1c1b19;
+  --f-shell-muted: #4a3f27;
+  --f-tape: #b3261e;           /* red tape rule under the shell */
+  --f-ground: #e9e4d3;         /* board the sheets lie on */
+  --f-sheet: #eef2e3;          /* noting-sheet green panel */
+  --f-sheet-2: #e3e9d4;        /* nested/zebra rows on a sheet */
+  --f-rule: #c5cdb1;           /* ruled lines on a sheet */
+  --f-ink: #1c1b19;            /* primary text */
+  --f-ink-2: #4b4a3f;          /* secondary text (tinted, not grey) */
+  --f-ink-3: #6d6b58;          /* tertiary / captions */
+  --f-stamp: #5b3e96;          /* stamp-pad violet: flags, committee */
+  --f-stamp-bg: rgba(91, 62, 150, 0.08);
+  --f-red: #b3261e;            /* over budget, failed */
+  --f-held: #2f6b3a;           /* register green: money that held */
+  --f-amber: #8a6a1f;          /* overbilled excess */
+  --f-focus: #5b3e96;
+
+  /* the four Rs100 segments, one strict ramp */
+  --seg-held: var(--f-held);
+  --seg-fail: var(--f-ink);
+  --seg-fail-ink: var(--f-sheet);
+  --seg-over: var(--f-amber);
+  --seg-twin: var(--f-red);
+
+  /* type */
+  --f-sans: 'Archivo', 'Segoe UI', system-ui, sans-serif;
+  --f-type: 'Courier Prime', 'Courier New', monospace;
+  --t-hero: clamp(5rem, 8vw, 7.5rem);
+  --t-verdict: clamp(1.9rem, 2.9vw, 2.75rem);
+  --t-h2: 1.5rem;
+  --t-h3: 0.95rem;
+  --t-body: 1rem;
+  --t-small: 0.875rem;
+  --t-micro: 0.75rem;
+
+  /* space + shape */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+  --r-sheet: 12px;
+  --r-ctl: 8px;
+  --shadow-sheet: 0 1px 2px rgba(60, 48, 20, 0.08), 0 6px 18px -8px rgba(60, 48, 20, 0.18);
+
+  font-family: var(--f-sans);
+  color: var(--f-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cv {
+    --f-shell: #a8905c;
+    --f-shell-ink: #15140f;
+    --f-shell-muted: #3a3220;
+    --f-tape: #d2463b;
+    --f-ground: #14150f;
+    --f-sheet: #21261a;
+    --f-sheet-2: #2b3121;
+    --f-rule: #353c2c;
+    --f-ink: #ece8d8;
+    --f-ink-2: #c4bfa8;
+    --f-ink-3: #9a957f;
+    --f-stamp: #b9a2ec;
+    --f-stamp-bg: rgba(185, 162, 236, 0.1);
+    --f-red: #ec6a5e;
+    --f-held: #6fb57c;
+    --f-amber: #d6ad4d;
+    --f-focus: #b9a2ec;
+    --seg-fail: #666a3c;      /* olive-ink; cream text on it is 4.6:1 */
+    --seg-fail-ink: #ece8d8;
+    --shadow-sheet: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -10px rgba(0, 0, 0, 0.6);
+  }
+}
+
+html:has(.cv), body:has(.cv) { background: var(--f-ground, #e9e4d3); }
+@media (prefers-color-scheme: dark) { html:has(.cv), body:has(.cv) { background: #14150f; } }
+.cv ::selection { background: var(--f-stamp); color: #fff; }
+.cv :focus-visible { outline: 2px solid var(--f-focus); outline-offset: 2px; border-radius: 4px; }
+
+/* Projector legibility: larger table, chip and panel-title type on wide screens. */
+@media (min-width: 1200px) {
+  .cv .cv-table, .cv .cvb-table { font-size: 0.9375rem; }
+  .cv .cv-table th, .cv .cvb-table th { font-size: 0.8125rem; }
+  .cv .cv-chip, .cv .cv-reason, .cv .cv-badge, .cv .cv-stamp, .cv .cv-legend, .cv .cv-map-legend, .cv .cv-map-layers label, .cv .cv-map-layers b { font-size: 0.8125rem; }
+  .cv .cv-head h3, .cv .cv-card > h3 { font-size: 0.9375rem; }
+}
