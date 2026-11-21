@@ -131,8 +131,9 @@ export default function CitizenView() {
       <div className="citizen-app">
         <AppBar
           title={ward ? titles.ward : 'Select ward'}
-          initial={session.profile.name[0]}
           onMenu={ward ? () => setMenuOpen(true) : undefined}
+          onComplaints={ward ? () => go('complaints') : undefined}
+          badge={needsAction}
         />
         <WardSelect
           profile={session.profile}
@@ -161,10 +162,11 @@ export default function CitizenView() {
     <div className="citizen-app">
       <AppBar
         title={titles[screen]}
-        initial={session.profile.name[0]}
         onMenu={() => setMenuOpen(true)}
         onBack={screen === 'detail' ? () => go('complaints') : undefined}
-        badge={screen !== 'complaints' && screen !== 'detail' ? needsAction : 0}
+        onComplaints={() => go('complaints')}
+        complaintsActive={screen === 'complaints'}
+        badge={needsAction}
       />
 
       {screen === 'report' && <ReportForm key={formKey} ward={ward} onSubmit={onSubmitted} />}
@@ -229,15 +231,17 @@ export default function CitizenView() {
 
 function AppBar({
   title,
-  initial,
   onMenu,
   onBack,
+  onComplaints,
+  complaintsActive = false,
   badge = 0,
 }: {
   title: string
-  initial: string
   onMenu?: () => void
   onBack?: () => void
+  onComplaints?: () => void
+  complaintsActive?: boolean
   badge?: number
 }) {
   return (
@@ -253,13 +257,26 @@ function AppBar({
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
           </svg>
-          {badge > 0 && <span className="menu-dot" aria-label={`${badge} need your confirmation`} />}
         </button>
       ) : (
         <span className="icon-btn" />
       )}
       <h1>{title}</h1>
-      <div className="avatar">{initial}</div>
+      {onComplaints ? (
+        <button
+          className={`icon-btn ${complaintsActive ? 'active' : ''}`}
+          onClick={onComplaints}
+          aria-label={badge > 0 ? `My complaints, ${badge} need your confirmation` : 'My complaints'}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="5" y="4" width="14" height="17" rx="2" />
+            <path d="M9 4h6v3H9zM8.5 11.5h7M8.5 15.5h5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {badge > 0 && <span className="menu-dot" aria-hidden />}
+        </button>
+      ) : (
+        <span className="icon-btn" />
+      )}
     </header>
   )
 }

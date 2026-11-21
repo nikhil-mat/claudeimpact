@@ -995,3 +995,7 @@ button.complaint {
     box-shadow: 0 0 0 7px var(--accent-bg);
   }
 }
+.icon-btn.active {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
