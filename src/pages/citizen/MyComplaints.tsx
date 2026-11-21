@@ -1,6 +1,27 @@
-import { problemById, wardById, type Complaint } from './mock'
+import {
+  complaintStage,
+  latestPhoto,
+  problemById,
+  roadById,
+  stageLabel,
+  wardById,
+  type Complaint,
+  type Stage,
+} from './mock'
 
-export default function MyComplaints({ complaints, onNew }: { complaints: Complaint[]; onNew: () => void }) {
+const STEPS: Stage[] = ['allotted', 'progress', 'finished', 'resolved']
+
+export default function MyComplaints({
+  complaints,
+  now,
+  onOpen,
+  onNew,
+}: {
+  complaints: Complaint[]
+  now: number
+  onOpen: (id: string) => void
+  onNew: () => void
+}) {
   if (complaints.length === 0) {
     return (
       <div className="screen empty">
@@ -14,23 +35,36 @@ export default function MyComplaints({ complaints, onNew }: { complaints: Compla
 
   return (
     <div className="screen stack">
-      {complaints.map((c) => (
-        <article key={c.id} className="card complaint">
-          <img src={c.photo} alt="" />
-          <div className="complaint-body">
-            <div className="complaint-top">
-              <strong>{problemById(c.problemId)?.label ?? 'Issue'}</strong>
-              <span className="status">{c.status}</span>
-            </div>
-            <div className="muted small">
-              {wardById(c.wardId)?.name} · {new Date(c.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
-            </div>
-            <div className="muted small">
-              {c.id} · {c.analysis.department}
-            </div>
-          </div>
-        </article>
-      ))}
+      {complaints.map((c) => {
+        const stage = complaintStage(c, now)
+        const photo = latestPhoto(c)
+        const problem = problemById(c.problemId)
+        const step = STEPS.indexOf(stage)
+        return (
+          <button key={c.id} className={`card complaint ${stage === 'finished' ? 'needs-action' : ''}`} onClick={() => onOpen(c.id)}>
+            {photo ? <img src={photo} alt="" /> : <span className="thumb-icon">{problem?.label[0]}</span>}
+            <span className="complaint-body">
+              <span className="complaint-top">
+                <strong>{problem?.label ?? 'Issue'}</strong>
+                {c.cycles.length > 1 && <span className="tag">Reopened</span>}
+              </span>
+              <span className="muted small">
+                {roadById(c.roadId)?.name ?? wardById(c.wardId)?.area} · {wardById(c.wardId)?.name}
+              </span>
+              <span className={`status s-${stage}`}>
+                {stage === 'finished' ? 'Work finished · confirm?' : stageLabel[stage]}
+              </span>
+              {stage !== 'forwarded' && (
+                <span className="mini-progress" aria-hidden>
+                  {STEPS.map((s, i) => (
+                    <span key={s} className={i <= step ? 'on' : ''} />
+                  ))}
+                </span>
+              )}
+            </span>
+          </button>
+        )
+      })}
     </div>
   )
 }
