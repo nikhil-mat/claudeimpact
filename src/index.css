@@ -33,7 +33,10 @@ body {
   background: var(--bg);
 }
 
-#root {
+/* #root is full-bleed so views like Citizen can be phone-style.
+   Desktop-style pages (.gateway, .page) set their own width/padding. */
+.gateway,
+.page {
   max-width: 960px;
   margin: 0 auto;
   padding: 48px 16px;
