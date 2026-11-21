@@ -999,3 +999,42 @@ button.complaint {
   color: var(--accent);
   background: var(--accent-bg);
 }
+.app-bar h1 {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.complaints-btn {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 8px 4px;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+}
+.complaints-btn.active {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.complaints-badge {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  color: #fff;
+  background: var(--warn);
+}
+.app-bar h1 {
+  text-align: center;
+}

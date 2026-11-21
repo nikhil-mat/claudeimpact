@@ -264,15 +264,12 @@ function AppBar({
       <h1>{title}</h1>
       {onComplaints ? (
         <button
-          className={`icon-btn ${complaintsActive ? 'active' : ''}`}
+          className={`complaints-btn ${complaintsActive ? 'active' : ''} ${badge > 0 ? 'alert' : ''}`}
           onClick={onComplaints}
           aria-label={badge > 0 ? `My complaints, ${badge} need your confirmation` : 'My complaints'}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="5" y="4" width="14" height="17" rx="2" />
-            <path d="M9 4h6v3H9zM8.5 11.5h7M8.5 15.5h5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          {badge > 0 && <span className="menu-dot" aria-hidden />}
+          My complaints
+          {badge > 0 && <span className="complaints-badge">{badge}</span>}
         </button>
       ) : (
         <span className="icon-btn" />
