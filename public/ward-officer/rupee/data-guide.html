@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caveman Data Guide</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#fff;--ink:#1d2321;--muted:#5d6763;--line:#e2e0d8;--soft:#efede6;--accent:#0f6b5c;--mono:ui-monospace,SFMono-Regular,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#121514;--panel:#1b1f1e;--ink:#e8ebe9;--muted:#9aa5a0;--line:#2c3331;--soft:#232927;--accent:#4fc1a8}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:28px 16px 60px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+h1{font-size:26px;margin:0}
+.btn{background:var(--accent);color:#fff;text-decoration:none;padding:8px 14px;border-radius:8px;font-weight:600;font-size:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:14px 0}
+.card h2{font-size:17px;margin:0 0 6px}
+ul{margin:4px 0;padding-left:22px}li{margin:3px 0}
+code{font-family:var(--mono);font-size:13.5px;background:var(--soft);padding:1px 5px;border-radius:4px}
+pre{background:var(--soft);border-radius:8px;padding:14px;overflow-x:auto;font:14px/1.5 var(--mono);margin:6px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><h1>🪨 Caveman Data Guide</h1><a class="btn" href="index.html">Dashboard →</a></div>
+
+<p>Data live in <code>repo/data/</code>. 15 CSV, 2 map file. All fake. Contractor fake too.</p>
+
+<div class="card"><h2>Big rock: <code>work_orders.csv</code> (2,499 job). Everything connect here.</h2>
+<ul>
+<li>Each job: ward, road, problem, fix method, contractor, cost, start/end time, deadline met Y/N, fix broke within 30 day Y/N.</li>
+<li><code>linked_complaint_ids</code> say which complaint made job. Ids join with <code>|</code>. Blank = no complaint = sus.</li>
+</ul></div>
+
+<div class="card"><h2>Money rocks</h2>
+<ul>
+<li><code>rate_card.csv</code>: fair price per method. Pothole patch price per sqm (area × rate). Pump and drain price per job. Normal bill within ±30% of this.</li>
+<li><code>wards.csv</code>: 24 ward, each with budget, how flood-y (<code>low_lying_index</code> 0 to 1), crew count.</li>
+<li><code>contractors.csv</code>: 8 fake builder.</li>
+</ul></div>
+
+<div class="card"><h2>People-yell rocks</h2>
+<ul>
+<li><code>complaints.csv</code> (6,501): citizen complaints, very messy.
+  <ul>
+  <li>About 18% picked wrong category.</li>
+  <li>7% have no ward.</li>
+  <li>Text in English, Hindi, Marathi, Hinglish.</li>
+  <li>GPS only on app complaints.</li>
+  <li><code>photo_description</code> most honest field: 100% right.</li>
+  </ul></li>
+<li><code>complaints_sample_200.csv</code>: small taste of big file, for quick testing.</li>
+<li><code>social_posts.csv</code> (650): Twitter and WhatsApp noise. Not linked to anything. Me no use.</li>
+</ul></div>
+
+<div class="card"><h2>Road rocks</h2>
+<ul>
+<li><code>roads.csv</code> (291 road piece): <code>under_dlp = Y</code> means old builder must fix free. If BMC paid anyway, bad.</li>
+<li><code>traffic.csv</code>: car count and jam level per road.</li>
+<li><code>accidents.csv</code>: crash per road. Some caused by pothole or water.</li>
+<li><code>facilities.csv</code>: hospitals and schools, plus which road ambulance use.</li>
+</ul></div>
+
+<div class="card"><h2>Sky-water rocks</h2>
+<ul>
+<li><code>rainfall_daily.csv</code>: rain per day at Santacruz (north) and Colaba (south).</li>
+<li><code>tides.csv</code>: tide height per day. Big tide is 4.5 m or more.</li>
+<li><code>flood_hotspots.csv</code>: 28 places that always flood, and how much rain floods them.</li>
+<li><code>localities.csv</code>: place name to ward and map spot. Has nicknames, including Devanagari spelling.</li>
+</ul></div>
+
+<div class="card"><h2>How rocks connect</h2>
+<pre>complaint ──id──&gt; work_order ──road_id──&gt; road (DLP? traffic? crash? hospital?)
+                      │
+         contractor ──┼── method ──&gt; rate_card (fair price?)
+                      │
+                   ward ──&gt; budget</pre></div>
+
+<div class="card"><h2>Me know these traps</h2>
+<ul>
+<li>Category citizen picked often wrong. Trust photo first, then English or helpline text.</li>
+<li>Hindi, Marathi and Hinglish app text often say different problem than real one. Data generator weird. Trust it least.</li>
+<li>Complaint with no GPS can find road name, but not which piece of road.</li>
+<li>Fake problems hidden in data:
+  <ul>
+  <li>bill more than 35% over fair price</li>
+  <li>same job billed twice within a few day, no complaint</li>
+  <li>BMC paid for fix on road under DLP</li>
+  </ul></li>
+<li>Deadline Y/N field honest. Me checked against times.</li>
+<li>Flood-y ward finish late more. Not builder fault. Me adjust for this in scorecards.</li>
+</ul></div>
+
+<p>Me already clean all this. Clean version in <code>out/</code> folder: <code>complaints_clean.csv</code>, <code>audit_flags.csv</code> and others.</p>
+</div>
+</body>
+</html>

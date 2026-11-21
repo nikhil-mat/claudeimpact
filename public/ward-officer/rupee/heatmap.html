@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Complaint Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="heat_data.js"></script>
+<script src="tenders_data.js"></script>
+<script src="reps_data.js"></script>
+<style>
+:root{--ink:#f5f3ff;--mute:#a59fc0;--panel:rgba(16,11,28,.9);--line:rgba(255,255,255,.1);--acc:#fbbf24}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0b0716;color:var(--ink);font:13px/1.45 -apple-system,system-ui,sans-serif}
+#map{position:absolute;inset:0;background:#0b0716}
+.panel{position:absolute;z-index:1000;top:16px;left:16px;width:290px;max-width:calc(100% - 32px);max-height:calc(100% - 32px);overflow:auto;background:var(--panel);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px;padding:16px}
+h1{margin:0 0 2px;font-size:18px;letter-spacing:-.01em}
+h1 span{background:linear-gradient(90deg,#a78bfa,#f97316,#fde047);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--mute)}
+select{width:100%;margin:14px 0 4px;font:inherit;font-size:14px;padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:#1d1530;color:var(--ink);cursor:pointer}
+.big{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:12px}
+.open{color:var(--acc);font-weight:600}
+h4{margin:16px 0 8px;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute)}
+.cat{display:grid;grid-template-columns:12px 1fr auto;gap:8px;align-items:center;margin:6px 0}
+.sw{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(0,0,0,.6)}
+.bar{grid-column:2/4;height:4px;border-radius:2px;background:rgba(255,255,255,.06);margin-top:-3px}
+.bar i{display:block;height:100%;border-radius:2px}
+.cat b{font-variant-numeric:tabular-nums}
+button.reset{margin-top:14px;width:100%;font:inherit;padding:8px;border-radius:9px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer;display:none}
+button.reset:hover{color:var(--ink)}
+a{color:var(--acc)}
+.leaflet-container{font:inherit}
+.leaflet-tooltip.wt{background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:none;border-radius:8px}
+.leaflet-tooltip.wt:before{display:none}
+.wlabel{background:none;border:0;box-shadow:none;color:#fff;font-weight:700;font-size:12px;text-shadow:0 0 4px #000,0 0 8px #000}
+.wlabel:before{display:none}
+.rep{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.rep:last-of-type{border-bottom:0}
+.av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;color:#0b0716}
+.rep .nm{font-weight:600}
+.rep .rl{color:var(--mute);font-size:11.5px}
+.party{font-size:10.5px;border:1px solid var(--line);border-radius:999px;padding:0 6px;margin-left:4px;color:var(--mute)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0 4px}
+.kpi{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:9px;padding:6px 8px}
+.kpi b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--mute);font-size:10.5px;line-height:1.2;display:block}
+.kpi.bad b{color:#fb7185}.kpi.ok b{color:#34d399}
+.send{width:100%;margin-top:8px;font:inherit;font-weight:600;padding:9px;border-radius:9px;border:0;cursor:pointer;color:#0b0716;background:linear-gradient(90deg,#a78bfa,#f97316,#fde047)}
+#msg{position:fixed;inset:0;z-index:2000;background:rgba(5,3,10,.7);display:none;place-items:center;padding:16px}
+#msg.open{display:grid}
+#msg .box{width:520px;max-width:100%;background:#16102a;border:1px solid var(--line);border-radius:14px;padding:18px}
+#msg textarea{width:100%;height:240px;margin:10px 0;font:12.5px/1.5 ui-monospace,monospace;background:#0b0716;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:10px;resize:vertical}
+#msg .row2{display:flex;gap:8px;justify-content:flex-end}
+#msg button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}
+#msg button.pri{background:#fbbf24;color:#0b0716;border:0;font-weight:600}
+.dummy{white-space:nowrap;font-size:9.5px;font-weight:700;letter-spacing:.06em;color:#0b0716;background:#fbbf24;border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+.tstats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px}
+.tstat{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:9px;padding:7px 9px}
+.tstat b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
+.tstat span{color:var(--mute);font-size:11px}
+.tender{border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin:7px 0;cursor:pointer;background:rgba(255,255,255,.025)}
+.tender:hover,.tender.on{border-color:rgba(251,191,36,.6)}
+.tender .tt{font-weight:600;margin:3px 0 2px}
+.tender .tm{color:var(--mute);font-size:11.5px;display:flex;justify-content:space-between;gap:8px}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 8px}
+.p-open{background:rgba(52,211,153,.18);color:#34d399}.p-eval{background:rgba(56,189,248,.18);color:#38bdf8}
+.p-award{background:rgba(167,139,250,.2);color:#c4b5fd}.p-draft{background:rgba(255,255,255,.08);color:var(--mute)}
+.p-dlp{background:rgba(251,191,36,.16);color:#fbbf24}
+.tid{color:var(--mute);font-size:10.5px;float:right;font-family:ui-monospace,monospace}
+.more{display:none;margin-top:8px;border-top:1px solid var(--line);padding-top:7px;font-size:12px}
+.tender.on .more{display:block}
+.bid{display:grid;grid-template-columns:1fr auto auto;gap:8px;padding:2px 0}
+.g{font-weight:700;width:18px;text-align:center;border-radius:4px}
+.gA{color:#34d399}.gB{color:#a3e635}.gC{color:#fbbf24}.gD{color:#f43f5e}
+.note{margin-top:6px;color:#fde68a;font-size:11.5px}
+#layersBtn{position:absolute;z-index:1001;top:16px;right:16px;display:none;align-items:center;gap:8px;font:inherit;font-weight:600;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(10px);color:var(--ink);cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+#layersBtn:hover,#layersBtn.on{border-color:rgba(251,191,36,.6)}
+#layersBtn .ic{width:16px;height:16px}
+#layers{position:absolute;z-index:1001;top:66px;right:16px;width:300px;max-width:calc(100% - 32px);max-height:calc(100% - 140px);overflow:auto;background:var(--panel);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 12px 32px rgba(0,0,0,.45);
+  opacity:0;transform:translateY(-6px) scale(.98);transform-origin:top right;pointer-events:none;transition:opacity .16s ease,transform .16s ease}
+#layers.show{opacity:1;transform:none;pointer-events:auto}
+#layers h4:first-child{margin-top:0;display:flex;align-items:center}
+#layers .x{margin-left:auto;background:none;border:0;color:var(--mute);font-size:18px;line-height:1;cursor:pointer;padding:0 2px}
+#layers .x:hover{color:var(--ink)}
+.lr{display:flex;align-items:center;gap:10px;padding:6px 0;cursor:pointer;user-select:none}
+.lr .k{flex:none;width:22px;display:grid;place-items:center}
+.lr .t{flex:1}
+.lr .n{color:var(--mute);font-variant-numeric:tabular-nums;font-size:12px}
+.lr.off .t,.lr.off .n{opacity:.4}.lr.off .k{opacity:.3}
+.sw2{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(0,0,0,.6)}
+.tg{flex:none;width:30px;height:17px;border-radius:999px;background:rgba(255,255,255,.12);position:relative;transition:background .15s}
+.tg:after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:transform .15s}
+.lr:not(.off) .tg{background:#f97316}.lr:not(.off) .tg:after{transform:translateX(13px)}
+.roadkey{width:22px;height:7px;border-radius:4px;background:#8b8796;box-shadow:0 0 0 2px #14111c;position:relative}
+.roadkey:after{content:"";position:absolute;left:3px;right:3px;top:3px;border-top:1px dashed #e9e7ef}
+.borderkey{width:18px;height:12px;border:1.6px solid #e9d5ff;border-radius:2px}
+.lnk{background:none;border:0;color:var(--acc);font:inherit;font-size:12px;cursor:pointer;padding:0}
+@media (max-width:600px){.panel{top:auto;bottom:16px;max-height:48%}#layers{max-height:40%}}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<button id="layersBtn" aria-expanded="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.4 0 4 1.5 4.5 4"/></svg>Who's responsible</button>
+<div id="layers" role="dialog" aria-label="Who's responsible"><div id="who"></div></div>
+<div id="msg"><div class="box">
+  <b>Message to your corporator</b> <span class="dummy">DEMO · NOT SENT</span>
+  <div class="sub" style="margin-top:4px">Built from this ward's numbers. Edit it, then copy it into email or WhatsApp.</div>
+  <textarea id="msgText"></textarea>
+  <div class="row2"><button onclick="document.getElementById('msg').classList.remove('open')">Close</button>
+  <button class="pri" id="copyBtn">Copy message</button></div>
+</div></div>
+<div class="panel">
+  <h1><span>Where Mumbai complains</span></h1>
+  <div class="sub">Every dot is a road complaint · monsoon 2025 · synthetic data</div>
+  <select id="ward"><option value="">All of Mumbai</option></select>
+  <div class="big" id="count">–</div>
+  <div class="sub" id="countsub"></div>
+  <h4 id="cathead">Problems</h4>
+  <div id="cats"></div>
+  <h4>Tenders <span class="dummy">DUMMY DATA</span></h4>
+  <div id="tenders"></div>
+  <button class="reset" id="reset">← Back to all of Mumbai</button>
+  <div class="sub" style="margin-top:14px"><a href="index.html">← Dashboard</a></div>
+</div>
+<script>
+const H = window.HEAT;
+const COLORS = {
+  "Pothole": "#f97316",
+  "Waterlogging": "#38bdf8",
+  "Choked drain / nullah overflow": "#a78bfa",
+  "Open or broken manhole": "#fde047",
+  "Road cave-in": "#f43f5e",
+  "Broken paver blocks": "#34d399",
+};
+const ROAD = new Set(Object.keys(COLORS).map(c => H.cats.indexOf(c)));
+const HIDE_ST = new Set(["Rejected - Not BMC road", "Rejected - Not road issue", "Forwarded to MMRDA/PWD", "Forwarded to SWM dept"].map(s => H.sts.indexOf(s)));
+const OPEN_ST = new Set(["Open", "In Progress"].map(s => H.sts.indexOf(s)));
+
+// positions are already spread out and kept on land by pipeline/map_data.py
+const rows = H.rows.map(r => { const [la, lo, c, s, up, ward, g, id, road] = r;
+  return { la, lo, c, s, up, ward, id, road, cat: H.cats[c], open: OPEN_ST.has(s) }; })
+  .filter(r => ROAD.has(r.c) && !HIDE_ST.has(r.s));
+
+const map = L.map("map", { zoomControl: false, preferCanvas: true });
+L.control.zoom({ position: "bottomright" }).addTo(map);
+L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+  { attribution: "Tiles © Esri", maxZoom: 16 }).addTo(map);
+map.createPane("labels"); map.getPane("labels").style.zIndex = 450; map.getPane("labels").style.pointerEvents = "none";
+const placeLabels = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+  { maxZoom: 16, pane: "labels", opacity: .7 }).addTo(map);
+
+// dim mask: the whole world with a hole where the selected ward is
+map.createPane("mask"); map.getPane("mask").style.zIndex = 380; map.getPane("mask").style.pointerEvents = "none";
+let mask = null;
+
+const byWard = {};
+for (const r of rows) (byWard[r.ward] ||= []).push(r);
+const names = Object.fromEntries(H.wards.features.map(f => [f.properties.ward_code, f.properties.ward_name]));
+
+const WARD_STYLE = { color: "#e9d5ff", weight: 1.6, opacity: .55, fillColor: "#000", fillOpacity: 0 };
+let selected = null;
+const wardLayer = L.geoJSON(H.wards, {
+  style: WARD_STYLE,
+  onEachFeature: (f, l) => {
+    const w = f.properties.ward_code, list = byWard[w] || [];
+    l.bindTooltip(`<b>${w}</b> · ${f.properties.ward_name}<br>${list.length} complaints · ${list.filter(r => r.open).length} still open`, { sticky: true, className: "wt" });
+    l.on("mouseover", () => { if (selected !== w) l.setStyle({ weight: 2.6, opacity: .95, fillColor: "#fff", fillOpacity: .04 }); });
+    l.on("mouseout", () => { if (selected !== w) l.setStyle(WARD_STYLE); });
+    l.on("click", () => select(w));
+  }
+}).addTo(map);
+const wardLabels = L.layerGroup().addTo(map);
+wardLayer.eachLayer(l => L.tooltip({ permanent: true, direction: "center", className: "wlabel", interactive: false })
+  .setLatLng(l.feature.properties.label || l.getBounds().getCenter()).setContent(l.feature.properties.ward_code).addTo(wardLabels));
+
+const renderer = L.canvas({ padding: .3 });
+const dots = rows.map(r => L.circleMarker([r.la, r.lo], { renderer, radius: 3, color: "#0b0716", weight: .7, fillColor: COLORS[r.cat], fillOpacity: .9 })
+  .bindTooltip(`<b>${r.cat}</b><br>${H.sts[r.s]} · ward ${r.ward} · ${r.up} upvotes`, { className: "wt" }).addTo(map));
+dots.forEach((d, i) => d.row = rows[i]);
+function sizeDots() { const z = map.getZoom(), rad = Math.max(2.5, Math.min(7, (z - 8) * 1.2));
+  dots.forEach(d => d.setRadius(rad)); }
+map.on("zoomend", sizeDots);
+
+const sel = document.getElementById("ward");
+Object.keys(names).sort((a, b) => a.localeCompare(b, "en", { numeric: true })).forEach(w =>
+  sel.insertAdjacentHTML("beforeend", `<option value="${w}">${w} · ${names[w]}</option>`));
+sel.onchange = () => select(sel.value || null);
+document.getElementById("reset").onclick = () => select(null);
+
+function holeRings(geom) {
+  const polys = geom.type === "Polygon" ? [geom.coordinates] : geom.coordinates;
+  return polys.map(p => p[0].map(([x, y]) => [y, x]));
+}
+function select(w) {
+  selected = w; sel.value = w || "";
+  if (mask) { map.removeLayer(mask); mask = null; }
+  wardLayer.eachLayer(l => l.setStyle(WARD_STYLE));
+  dots.forEach(d => d.setStyle({ fillColor: COLORS[d.row.cat], fillOpacity: !w || d.row.ward === w ? .9 : .12, opacity: !w || d.row.ward === w ? 1 : .1 }));
+  if (w) {
+    let layer; wardLayer.eachLayer(l => { if (l.feature.properties.ward_code === w) layer = l; });
+    const world = [[-90, -180], [-90, 180], [90, 180], [90, -180]];
+    mask = L.polygon([world, ...holeRings(layer.feature.geometry)], { pane: "mask", stroke: false, fillColor: "#05030a", fillOpacity: .72, interactive: false }).addTo(map);
+    layer.setStyle({ color: "#fde047", weight: 3, opacity: 1, fillOpacity: 0 }); layer.bringToFront();
+    map.flyToBounds(layer.getBounds(), { paddingTopLeft: [innerWidth > 600 ? 330 : 30, 30], paddingBottomRight: [30, innerWidth > 600 ? 30 : innerHeight * .5], duration: .8 });
+  } else fitAll(true);
+  summary(w);
+}
+function summary(w) {
+  const list = w ? (byWard[w] || []) : rows, open = list.filter(r => r.open).length;
+  document.getElementById("count").textContent = list.length.toLocaleString();
+  document.getElementById("countsub").innerHTML = `complaints${w ? ` in ${w} · ${names[w]}` : " across the city"} · <span class="open">${open.toLocaleString()} still open</span>`;
+  document.getElementById("cathead").textContent = w ? `Problems in ${w}` : "Problems";
+  const n = {}; list.forEach(r => n[r.cat] = (n[r.cat] || 0) + 1);
+  const max = Math.max(1, ...Object.values(n));
+  document.getElementById("cats").innerHTML = Object.keys(COLORS).sort((a, b) => (n[b] || 0) - (n[a] || 0)).map(c =>
+    `<div class="cat"><span class="sw" style="background:${COLORS[c]}"></span><span>${c}</span><b>${n[c] || 0}</b>
+     <div class="bar"><i style="width:${(n[c] || 0) / max * 100}%;background:${COLORS[c]}"></i></div></div>`).join("");
+  document.getElementById("reset").style.display = w ? "block" : "none";
+  tenderPanel(w);
+  whoPanel(w);
+}
+
+// ---------------- who's responsible (dummy people, real numbers from our analysis)
+const R = window.REPS || {};
+const AV = ["#a78bfa", "#f97316", "#fde047", "#38bdf8", "#34d399", "#fb7185"];
+function whoPanel(w) {
+  const el = document.getElementById("who");
+  const r = w && R[w];
+  // the button only appears while a ward is being viewed
+  const btn = document.getElementById("layersBtn"), cardEl = document.getElementById("layers");
+  btn.style.display = r ? "flex" : "none";
+  if (!r) { cardEl.classList.remove("show"); btn.classList.remove("on"); }
+  if (!r) { el.innerHTML = `<h4>Who's responsible <span class="dummy">DUMMY PEOPLE</span><button class="x" aria-label="Close">×</button></h4>
+    <div class="sub">Pick a ward on the map or from the list to see its ward officer, corporators and their scorecard.</div>`; return; }
+  const s = r.stats, people = [r.officer, ...r.corporators];
+  const card = (p, i) => `<div class="rep"><div class="av" style="background:${AV[i % AV.length]}">${p.initials}</div>
+    <div><div class="nm">${p.name}${p.party ? `<span class="party">${p.party}</span>` : ""}</div><div class="rl">${p.role}</div></div></div>`;
+  el.innerHTML = `<h4>Who's responsible in ${w} <span class="dummy">DUMMY PEOPLE</span><button class="x" aria-label="Close">×</button></h4>
+    ${people.map(card).join("")}
+    <div class="kpis">
+      <div class="kpi ${s.open > 40 ? "bad" : ""}"><b>${s.open}</b><span>still open</span></div>
+      <div class="kpi ${s.sla_met < 50 ? "bad" : "ok"}"><b>${s.sla_met}%</b><span>fixed on time</span></div>
+      <div class="kpi ${s.reopen > 25 ? "bad" : "ok"}"><b>${s.reopen}%</b><span>broke again in 30 days</span></div>
+      <div class="kpi"><b>${inr(s.spend_inr)}</b><span>spent of ${inr(s.budget_inr)}</span></div>
+      <div class="kpi ${s.flags ? "bad" : "ok"}"><b>${s.flags}</b><span>bills flagged</span></div>
+      <div class="kpi ok"><b>${inr(s.recoverable_inr)}</b><span>could be recovered</span></div>
+    </div>
+    <button class="send" id="sendBtn">✉ Send this report to your corporator</button>`;
+  document.getElementById("sendBtn").onclick = () => openMsg(w, r);
+}
+function openMsg(w, r) {
+  const s = r.stats, c = r.corporators[0];
+  const text = `To: ${c.name} (${c.role})
+Cc: ${r.officer.name}, ${r.officer.role}, ward ${w}
+
+Subject: Road repairs in ward ${w} (${names[w]})
+
+Dear ${c.name.split(" ")[0]} ji,
+
+I live in ward ${w}. From the public repair records for this monsoon:
+
+- ${s.complaints} road complaints; ${s.open} are still open, the oldest for ${s.oldest_open_days} days.
+- ${s.sla_met}% of repairs were finished within the target time.
+- ${s.reopen}% of repairs broke again within 30 days.
+- ${inr(s.spend_inr)} spent of a ${inr(s.budget_inr)} budget.
+- ${s.flags} bills flagged for review (${inr(s.at_issue_inr)} at issue); about ${inr(s.recoverable_inr)} could be recovered.
+- ${s.tenders_open} repair tender(s) are open for bids right now.
+
+Could you please share when the open complaints will be fixed, and what is being done about the flagged bills?
+
+Thank you,
+<your name>`;
+  document.getElementById("msgText").value = text;
+  document.getElementById("msg").classList.add("open");
+}
+
+// ---------------- tenders (dummy)
+const T = window.TENDERS || { tenders: [], dlp: [] };
+const inr = x => x >= 1e5 ? `₹${(x / 1e5).toFixed(1)} L` : `₹${Math.round(x / 1e3)}k`;
+const PILL = { "Open for bids": "p-open", "Under evaluation": "p-eval", "Awarded": "p-award", "Draft": "p-draft" };
+const ORDER = { "Open for bids": 0, "Under evaluation": 1, "Awarded": 2, "Draft": 3 };
+const LINE_COL = { "Open for bids": "#34d399", "Under evaluation": "#38bdf8", "Awarded": "#c4b5fd", "Draft": "#a59fc0" };
+map.createPane("troads"); map.getPane("troads").style.zIndex = 395;   // under the dots
+map.createPane("thit"); map.getPane("thit").style.zIndex = 445;        // invisible hover strip above the dots
+const roadSvg = L.svg({ pane: "troads" }), hitSvg = L.svg({ pane: "thit" });
+const roadLayer = L.layerGroup().addTo(map);
+const fmtDate = s => new Date(s + "T00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+
+function tenderPanel(w) {
+  const el = document.getElementById("tenders"); roadLayer.clearLayers();
+  if (!w) {
+    const open = T.tenders.filter(t => t.status === "Open for bids"), flagged = T.tenders.filter(t => t.note.includes("D grade")).length;
+    el.innerHTML = `<div class="tstats">
+      <div class="tstat"><b>${open.length}</b><span>open for bids</span></div>
+      <div class="tstat"><b>${inr(open.reduce((a, t) => a + t.estimate_inr, 0))}</b><span>value open now</span></div>
+      <div class="tstat"><b>${T.tenders.filter(t => t.status === "Awarded").length}</b><span>awarded</span></div>
+      <div class="tstat"><b>${flagged}</b><span>lowest bidder graded D</span></div></div>
+      <div class="sub">Pick a ward to see its tenders and the roads they cover.</div>`;
+    return;
+  }
+  const list = T.tenders.filter(t => t.ward === w).sort((a, b) => ORDER[a.status] - ORDER[b.status] || b.estimate_inr - a.estimate_inr);
+  const dlp = T.dlp.find(d => d.ward === w);
+  let h = list.map((t, i) => {
+    const when = t.status === "Open for bids" ? `closes ${fmtDate(t.closes)} · ${t.days_left} days left`
+      : t.status === "Draft" ? "not yet published" : `closed ${fmtDate(t.closes)}`;
+    const bids = t._bids.length ? t._bids.map((b, j) => `<div class="bid"><span>${j === 0 ? "L1 · " : ""}${b.contractor}</span>
+        <span class="g g${b.grade}" title="overall grade">${b.grade}</span><b>${inr(b.amount)}</b></div>`).join("")
+      : t.status === "Open for bids" ? `<div class="sub">${t.bids_received} bids in, sealed until ${fmtDate(t.closes)}.</div>` : `<div class="sub">No bids yet.</div>`;
+    return `<div class="tender" data-i="${i}"><span class="pill ${PILL[t.status]}">${t.status}</span><span class="tid">${t.tender_id}</span>
+      <div class="tt">${t.title}</div>
+      <div class="tm"><span>${t.issues} issue(s) · ${t.complaints} complaint(s)</span><b>${inr(t.estimate_inr)}</b></div>
+      <div class="tm"><span>${when}</span>${t.winner ? `<span>→ ${t.winner}</span>` : ""}</div>
+      <div class="more"><div class="sub" style="margin-bottom:4px">Roads: ${t.roads.split("|").join(", ")}</div>${bids}
+      ${t.note ? `<div class="note">⚠ ${t.note}</div>` : ""}</div></div>`;
+  }).join("");
+  if (dlp) h += `<div class="tender" style="cursor:default"><span class="pill p-dlp">No tender · DLP</span>
+      <div class="tt">${dlp.issues} repair(s) go back to the original contractor</div>
+      <div class="tm"><span>${dlp.roads.split("|").join(", ")}</span><b>${inr(dlp.saved_inr)} saved</b></div></div>`;
+  el.innerHTML = h || `<div class="sub">No tenders planned for this ward.</div>`;
+  // roads already covered by a tender (or sent back under DLP) are greyed out, with their complaint dots
+  const GREY = "#8b8796";
+  const covered = new Map();                                     // road id -> tender index (-1 = DLP)
+  if (dlp) dlp._rids.forEach(r => covered.set(r, -1));
+  list.forEach((t, i) => t._rids.forEach(r => covered.set(r, i)));
+  const wardDots = dots.filter(d => d.row.ward === w);
+  const paintDots = active => wardDots.forEach(d => {
+    const k = covered.get(d.row.road);
+    if (k === undefined) d.setStyle({ fillColor: COLORS[d.row.cat], fillOpacity: active === null ? .9 : .35 });
+    else if (k === active) { d.setStyle({ fillColor: COLORS[d.row.cat], fillOpacity: 1 }); d.bringToFront(); }
+    else d.setStyle({ fillColor: "#6b6878", fillOpacity: .28, opacity: .25 });
+  });
+  // a road drawn like a road: soft glow, dark edge, grey asphalt, dashed centre marking
+  const ROAD = {
+    off: { glow: { opacity: 0 }, edge: { color: "#14111c", opacity: .9 }, body: { color: GREY, opacity: .9 }, mark: { color: "#e9e7ef", opacity: .55 } },
+    on: c => ({ glow: { color: c, opacity: .35 }, edge: { color: "#0b0716", opacity: 1 }, body: { color: c, opacity: 1 }, mark: { color: "#fff", opacity: .9 } }),
+  };
+  function drawRoad(ln, tip, dlpRoad) {
+    const base = { pane: "troads", renderer: roadSvg, lineCap: "round", lineJoin: "round", interactive: false };
+    const r = {
+      glow: L.polyline(ln, { ...base, weight: 22, color: GREY, opacity: 0 }),
+      edge: L.polyline(ln, { ...base, weight: 13 }),
+      body: L.polyline(ln, { ...base, weight: 9 }),
+      mark: L.polyline(ln, { ...base, weight: 1.6, dashArray: dlpRoad ? "1 6" : "7 7", lineCap: "butt" }),
+    };
+    // a wide invisible line above the dots makes hovering easy
+    r.hit = L.polyline(ln, { pane: "thit", renderer: hitSvg, weight: 16, opacity: 0 }).bindTooltip(tip, { className: "wt", sticky: true });
+    Object.values(r).forEach(l => l.addTo(roadLayer));
+    r.set = s => { for (const k of ["glow", "edge", "body", "mark"]) r[k].setStyle(s[k]); };
+    r.front = () => ["glow", "edge", "body", "mark", "hit"].forEach(k => r[k].bringToFront());
+    r.set(ROAD.off);
+    return r;
+  }
+  if (dlp) dlp._lines.forEach(ln => drawRoad(ln, `<b>DLP road</b><br>Original contractor fixes at ₹0 to BMC`, true));
+  const lines = list.map(t => t._lines.map(ln => drawRoad(ln,
+    `<b>${t.tender_id}</b> · ${t.status}<br>${t.title}<br>${inr(t.estimate_inr)} · covered by this tender`)));
+  paintDots(null);
+  el.querySelectorAll(".tender[data-i]").forEach(card => card.onclick = () => {
+    const i = +card.dataset.i, on = !card.classList.contains("on");
+    el.querySelectorAll(".tender").forEach(c => c.classList.remove("on"));
+    lines.flat().forEach(r => r.set(ROAD.off));
+    if (on) { card.classList.add("on"); lines[i].forEach(r => { r.set(ROAD.on(LINE_COL[list[i].status])); r.front(); }); }
+    paintDots(on ? i : null);
+  });
+}
+function fitAll(fly) {
+  const opt = { paddingTopLeft: [innerWidth > 600 ? 320 : 20, 20], paddingBottomRight: [20, innerWidth > 600 ? 20 : innerHeight * .45] };
+  fly ? map.flyToBounds(wardLayer.getBounds(), { ...opt, duration: .8 }) : map.fitBounds(wardLayer.getBounds(), opt);
+}
+// ---------------- "Who's responsible" floating card (right)
+const lBtn = document.getElementById("layersBtn"), lCard = document.getElementById("layers");
+const setCard = open => { lCard.classList.toggle("show", open); lBtn.classList.toggle("on", open); lBtn.setAttribute("aria-expanded", open); };
+lBtn.onclick = () => setCard(!lCard.classList.contains("show"));
+lCard.addEventListener("click", e => { if (e.target.closest(".x")) setCard(false); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") setCard(false); });
+if (location.hash === "#who") setTimeout(() => setCard(true), 0);
+
+document.getElementById("copyBtn").onclick = async e => {
+  const t = document.getElementById("msgText");
+  try { await navigator.clipboard.writeText(t.value); } catch (err) { t.select(); document.execCommand("copy"); }
+  e.target.textContent = "Copied ✓"; setTimeout(() => e.target.textContent = "Copy message", 1500);
+};
+document.getElementById("msg").onclick = e => { if (e.target.id === "msg") e.target.classList.remove("open"); };
+fitAll(false); sizeDots();
+let start = null; try { start = new URLSearchParams(location.search).get("ward"); } catch (e) {}
+select(start && names[start] ? start : null);
+</script>
+</body>
+</html>

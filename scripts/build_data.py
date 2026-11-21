@@ -2,6 +2,10 @@
 
 Usage: PYTHONUTF8=1 python scripts/build_data.py <dataset_dir>
 pandas + stdlib only. All asserts run before any file is written.
+
+Audit flags (over-billed, billed twice, paid during DLP) are NOT computed here: they come from
+the shared audit engine's output, engine/out/audit_flags.csv (run engine/build.py first), so the
+Corporator view and Ward Desk show the same numbers.
 """
 import json
 import math
@@ -13,6 +17,17 @@ from pathlib import Path
 import pandas as pd
 
 BUCKETS = ('twin', 'over', 'fail', 'held')
+AUDIT_FLAGS = Path(__file__).resolve().parent.parent / 'engine' / 'out' / 'audit_flags.csv'
+TWIN_RE = re.compile(r'twin (WO25-\d{5})')
+
+
+def load_audit():
+    """Flags from the shared audit engine, keyed by work order id."""
+    f = pd.read_csv(AUDIT_FLAGS, dtype={'work_order_id': str})
+    over = f[f.flag == 'Over-billed vs rate card'].set_index('work_order_id').amount_at_issue_inr
+    twin = f[f.flag == 'Possible double billing'].set_index('work_order_id').evidence.str.extract(TWIN_RE)[0]
+    dlp = set(f[(f.flag == 'Paid during DLP') & (f.confidence == 'High')].work_order_id)
+    return f, over, twin, dlp
 TEMPLATE_SOURCE = 'template (Claude unavailable)'
 
 
@@ -40,7 +55,8 @@ def tag_work_orders(d):
     expected = (w.standard_rate_inr * w.area_sqm).where(per_sqm, w.standard_rate_inr)
     w['expected_inr'] = expected.round(2)
     w['ratio'] = (w.cost_inr / expected).round(3)
-    w['flag_overbilled'] = (w.cost_inr / expected) >= 1.4
+    audit, over_excess, twin_map, dlp_ids = load_audit()
+    w['flag_overbilled'] = w.work_order_id.isin(over_excess.index)   # engine: billed > 1.35x the rate card
 
     w['assigned_dt'] = pd.to_datetime(w.assigned_at, format='%Y-%m-%d %H:%M')
     w['road_name'] = w.road_id.map(roads.road_name)
@@ -50,32 +66,15 @@ def tag_work_orders(d):
     w['reopened'] = w.reopened_within_30d == 'Y'
     w['exp_fail'] = w.repair_method.map(w.groupby('repair_method').reopened.mean()).round(4)
     w['complaint_ids'] = w.linked_complaint_ids.apply(lambda s: s.split('|') if s else [])
-    w['flag_dlp_review'] = w.under_dlp & per_sqm
-
-    # twins: unlinked row with a same road/method/contractor row assigned within +-10 days
-    flag_twin, twin_of = [], []
-    groups = {k: g for k, g in w.groupby(['road_id', 'repair_method', 'contractor_id'])}
-    for _, r in w.iterrows():
-        if r.linked_complaint_ids != '':
-            flag_twin.append(False)
-            twin_of.append(None)
-            continue
-        g = groups[(r.road_id, r.repair_method, r.contractor_id)]
-        g = g[g.work_order_id != r.work_order_id]
-        g = g[(g.assigned_dt - r.assigned_dt).abs() <= pd.Timedelta(days=10)]
-        flag_twin.append(len(g) > 0)
-        linked = g[g.linked_complaint_ids != '']
-        if len(linked):
-            dist = (linked.assigned_dt - r.assigned_dt).abs()
-            twin_of.append(linked.loc[dist.sort_values(kind='stable').index[0]].work_order_id)
-        else:
-            twin_of.append(None)
-    w['flag_twin'] = flag_twin
-    w['twin_of'] = twin_of
+    # engine: surface repairs BMC paid for on roads still under DLP
+    w['flag_dlp_review'] = w.work_order_id.isin(dlp_ids)
+    # engine: unlinked job repeating the same road + method within 7 days
+    w['flag_twin'] = w.work_order_id.isin(twin_map.index)
+    w['twin_of'] = w.work_order_id.map(twin_map).where(w.flag_twin, None)
 
     cost = w.cost_inr.astype(float)
     w['b_twin'] = cost.where(w.flag_twin, 0.0)
-    w['b_over'] = (cost - 1.3 * expected).where(w.flag_overbilled & ~w.flag_twin, 0.0).round(2)
+    w['b_over'] = w.work_order_id.map(over_excess).fillna(0.0).where(w.flag_overbilled & ~w.flag_twin, 0.0).astype(float).round(2)
     rem = cost - w.b_twin - w.b_over
     w['b_fail'] = rem.where(w.reopened, 0.0).round(2)
     w['b_held'] = (rem - w.b_fail).round(2)
@@ -280,18 +279,21 @@ def build_briefs(wards_file, wo, social=None):
 
 def run_asserts_core(wo, wards_file, briefs):
     assert len(wo) == 2499
-    assert wo.flag_overbilled.sum() == 111
-    assert wo.flag_twin.sum() == 45
+    audit, over_excess, twin_map, dlp_ids = load_audit()
+    assert wo.flag_overbilled.sum() == len(over_excess) == 113
+    assert wo.flag_twin.sum() == len(twin_map) == 45
     tw = wo.set_index('id').twin_of
-    assert tw['WO25-02485'] == 'WO25-00057' and tw['WO25-02472'] == 'WO25-00373'
+    assert tw['WO25-02485'] == 'WO25-00057'
     assert ((wo.b_twin + wo.b_over + wo.b_fail + wo.b_held - wo.cost_inr).abs() < 0.011).all()
-    assert wo.flag_dlp_review.sum() == 259 and wo.loc[wo.flag_dlp_review, 'cost_inr'].sum() == 6026225
+    assert wo.flag_dlp_review.sum() == len(dlp_ids) == 274
+    dlp_high = audit[(audit.flag == 'Paid during DLP') & (audit.confidence == 'High')]
+    assert wo.loc[wo.flag_dlp_review, 'cost_inr'].sum() == dlp_high.amount_at_issue_inr.sum() == 8729314
     for w in wards_file['wards']:
         assert abs(sum(w['buckets'].values()) - w['spend_inr']) <= 1, w['ward_code']
     e = next(w for w in wards_file['wards'] if w['ward_code'] == 'E')
     assert e['spend_inr'] == 6322991 and e['budget_inr'] == 5300000
-    assert [round(e['per100'][k], 2) for k in ('twin', 'over', 'fail', 'held')] == [1.11, 5.66, 29.54, 63.70]
-    assert round(wards_file['medians']['per100']['held']) == 72
+    assert [round(e['per100'][k], 2) for k in ('twin', 'over', 'fail', 'held')] == [1.11, 7.99, 28.50, 62.40]   # with engine flags
+    assert round(wards_file['medians']['per100']['held']) == 70
     assert len(wards_file['wards']) == 24
     ids = set(wo.id)
     for code, b in briefs.items():

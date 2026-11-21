@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Follow the Rupee</title>
+<style>
+:root{
+  --bg:#f6f5f1;--panel:#ffffff;--ink:#1d2321;--muted:#5d6763;--line:#e2e0d8;--soft:#efede6;
+  --accent:#0f6b5c;--accent-soft:#dcefe9;--warn:#b25d00;--warn-soft:#fbecd9;--bad:#b3261e;--bad-soft:#f8dedb;
+  --ok:#2e7d32;--ok-soft:#e1f0e2;--info:#3a5a99;--info-soft:#e2e8f5;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121514;--panel:#1b1f1e;--ink:#e8ebe9;--muted:#9aa5a0;--line:#2c3331;--soft:#232927;
+  --accent:#4fc1a8;--accent-soft:#17352f;--warn:#f0a548;--warn-soft:#3a2a14;--bad:#f07a71;--bad-soft:#3b1d1b;
+  --ok:#7ccf80;--ok-soft:#1c3320;--info:#8fb0f0;--info-soft:#1d2840;}}
+:root[data-theme="dark"]{
+  --bg:#121514;--panel:#1b1f1e;--ink:#e8ebe9;--muted:#9aa5a0;--line:#2c3331;--soft:#232927;
+  --accent:#4fc1a8;--accent-soft:#17352f;--warn:#f0a548;--warn-soft:#3a2a14;--bad:#f07a71;--bad-soft:#3b1d1b;
+  --ok:#7ccf80;--ok-soft:#1c3320;--info:#8fb0f0;--info-soft:#1d2840;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:20px 24px 0;max-width:1240px;margin:0 auto}
+h1{font-size:24px;margin:0;letter-spacing:-.01em}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);margin:4px 0 14px;font-size:14px}
+nav{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+nav button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;font:inherit;color:var(--muted);cursor:pointer}
+nav button.on{color:var(--ink);border-color:var(--accent);font-weight:600}
+main{max-width:1240px;margin:0 auto;padding:20px 24px 60px}
+section{display:none}section.on{display:block}
+.grid{display:grid;gap:14px}
+.k4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.two{grid-template-columns:1.3fr 1fr}
+@media(max-width:860px){.two{grid-template-columns:1fr}header,main{padding-left:16px;padding-right:16px}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.card h3{margin:0 0 10px;font-size:15px}
+.kpi .v{font-size:26px;font-weight:650;letter-spacing:-.02em}
+.kpi .l{color:var(--muted);font-size:13px}
+.kpi .n{font-size:12.5px;color:var(--muted);margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;color:var(--muted);font-weight:500;font-size:12.5px;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--soft)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mono{font-family:var(--mono);font-size:12.5px}
+.scroll{overflow-x:auto}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;white-space:nowrap}
+.p-bad{background:var(--bad-soft);color:var(--bad)}.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-info{background:var(--info-soft);color:var(--info)}
+.p-mute{background:var(--soft);color:var(--muted)}
+.bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden;position:relative;min-width:80px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.bar i.over{background:var(--bad)}
+.hb{display:grid;grid-template-columns:minmax(120px,210px) 1fr auto;gap:8px;align-items:center;font-size:13px;margin:5px 0}
+.hb .bar{height:10px}
+.stack{display:flex;height:10px;border-radius:4px;overflow:hidden;background:var(--soft);min-width:120px}
+.stack i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted);margin:6px 0 10px}
+.legend b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
+select,input{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+input[type=search]{min-width:260px}
+.note{background:var(--accent-soft);border-radius:10px;padding:14px 16px;line-height:1.6}
+.note .src{font-size:12px;color:var(--muted);margin-top:8px}
+.grade{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;font-weight:700}
+.gA{background:var(--ok-soft);color:var(--ok)}.gB{background:var(--info-soft);color:var(--info)}
+.gC{background:var(--warn-soft);color:var(--warn)}.gD{background:var(--bad-soft);color:var(--bad)}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.dims{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0;text-align:center;font-size:12px;color:var(--muted)}
+.trail{display:grid;gap:10px}
+.step{border-left:3px solid var(--accent);padding:8px 14px;background:var(--panel);border-radius:0 8px 8px 0;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.step .t{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+a{color:var(--accent)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+.modal.on{display:flex}
+.modal .card{max-width:640px;width:100%;max-height:85vh;overflow:auto}
+dl{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;margin:0;font-size:13.5px}dt{color:var(--muted)}dd{margin:0}
+.themebtn{float:right;background:none;border:1px solid var(--line);border-radius:8px;padding:4px 10px;color:var(--muted);cursor:pointer;font:inherit;font-size:12.5px}
+</style>
+</head>
+<body>
+<header>
+  <button class="themebtn" id="theme">Theme</button>
+  <a class="themebtn" href="data-guide.html" style="margin-right:8px;text-decoration:none">Data guide</a>
+  <h1>Follow the <span>Rupee</span> · Mumbai monsoon roads 2025</h1>
+  <p class="sub">Where each ward's road-repair money went, whether the work held up, and where the next rupee should go. <b>Synthetic data; every contractor is fictional.</b></p>
+  <nav id="tabs"></nav>
+</header>
+<main>
+  <section id="t-city"></section>
+  <section id="t-ward"></section>
+  <section id="t-audit"></section>
+  <section id="t-contractors"></section>
+  <section id="t-plan"></section>
+  <section id="t-track"></section>
+  <section id="t-method"></section>
+</main>
+<div class="modal" id="modal"><div class="card" id="modalbody"></div></div>
+<script src="data.js"></script>
+<script>
+const D = window.DATA;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const inr = x => { x = +x || 0; const a = Math.abs(x);
+  return a >= 1e7 ? `₹${(x/1e7).toFixed(2)} cr` : a >= 1e5 ? `₹${(x/1e5).toFixed(1)} lakh` : `₹${Math.round(x).toLocaleString("en-IN")}`; };
+const pct = x => `${Math.round((+x||0)*100)}%`;
+const strip = s => String(s||"").replace(" (synthetic)", "");
+const WO = Object.fromEntries(D.work_orders.map(w => [w.work_order_id, w]));
+const C = Object.fromEntries(D.complaints.map(c => [c.complaint_id, c]));
+const FLAGS_BY_WO = {}; D.flags.forEach(f => (FLAGS_BY_WO[f.work_order_id] ||= []).push(f));
+const narr = (kind, key) => (D.narratives?.[kind]?.[key]?.en) ? [D.narratives[kind][key].en, "Written by Claude from the computed fact sheet"]
+                              : [D.narratives_template[kind][key].en, "Template summary from computed figures (run claude_layer.py narrate for Claude's version)"];
+const flagPill = f => {
+  const cls = f.flag.startsWith("Over") ? "p-bad" : f.flag.startsWith("Possible") ? "p-warn" : f.flag.startsWith("Paid") ? (f.confidence==="High"?"p-info":"p-mute") : "p-mute";
+  return `<span class="pill ${cls}">${esc(f.flag)}</span>`; };
+const woLink = id => `<a href="#" class="mono" data-wo="${esc(id)}">${esc(id)}</a>`;
+
+// ---------------- tabs
+const TABS = [["city","City overview"],["ward","Ward money trail"],["audit","Audit flags"],["contractors","Contractor scorecards"],
+              ["plan","Next-rupee planner"],["method","How this works"]];   // "Track a complaint" lives in the Citizen view
+$("#tabs").innerHTML = TABS.map(([k,l]) => `<button data-t="${k}">${l}</button>`).join("");
+function show(k){ document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t===k));
+  document.querySelectorAll("section").forEach(s => s.classList.toggle("on", s.id==="t-"+k));
+  try{ localStorage.setItem("ftr-tab", k) }catch(e){} }
+$("#tabs").onclick = e => { if (e.target.dataset.t) show(e.target.dataset.t); };
+
+// ---------------- city
+(function city(){
+  const S = D.summary, fs = k => S.flags.filter(f => f.flag===k);
+  const sum = (a, conf) => a.filter(f => !conf || f.confidence===conf).reduce((t,f)=>t+f.amount,0);
+  const cnt = (a, conf) => a.filter(f => !conf || f.confidence===conf).reduce((t,f)=>t+f.n,0);
+  const ob = fs("Over-billed vs rate card"), db = fs("Possible double billing"), dl = fs("Paid during DLP");
+  const wards = [...D.wards].sort((a,b)=>b.spend_inr-a.spend_inr);
+  const maxB = Math.max(...wards.map(w => Math.max(w.budget_inr, w.spend_inr)));
+  $("#t-city").innerHTML = `
+  <div class="grid k4">
+    <div class="card kpi"><div class="l">Spent vs budget</div><div class="v">${inr(S.total_spend_inr)}</div>
+      <div class="n">of ${inr(S.total_budget_inr)} across 24 wards · ${S.jobs.toLocaleString()} jobs</div></div>
+    <div class="card kpi"><div class="l">Spent on fixes that failed within 30 days</div><div class="v">${inr(S.failed_spend_inr)}</div>
+      <div class="n">${pct(S.reopen_rate)} of repairs re-opened · SLA met on ${pct(S.sla_rate)}</div></div>
+    <div class="card kpi"><div class="l">Over-billed vs rate card</div><div class="v">${inr(sum(ob))}</div>
+      <div class="n">excess on ${cnt(ob)} jobs billed &gt;35% above the standard rate</div></div>
+    <div class="card kpi"><div class="l">Possible double billing</div><div class="v">${inr(sum(db))}</div>
+      <div class="n">${cnt(db)} repeat jobs, same road and method, no complaint behind them</div></div>
+    <div class="card kpi"><div class="l">Paid while road under DLP</div><div class="v">${inr(sum(dl,"High"))}</div>
+      <div class="n">${cnt(dl,"High")} road-surface repairs the original contractor owed · +${cnt(dl,"Review")} drainage jobs to review (${inr(sum(dl,"Review"))})</div></div>
+    <div class="card kpi"><div class="l">Complaints → issues</div><div class="v">${S.linker.open_issues_after_dedup}</div>
+      <div class="n">open issues after merging ${S.linker.open_complaints} unfixed complaints and dropping ${S.linker.noise_dropped} non-road posts</div></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h3>Every ward: budget, spend, failures and what's still open</h3>
+    <div class="legend"><span><b style="background:var(--accent)"></b>spent within budget</span><span><b style="background:var(--bad)"></b>spent over budget</span><span>│ = budget</span></div>
+    <div class="scroll"><table><thead><tr><th>Ward</th><th>Areas</th><th>Spend vs budget</th><th class="num">Spent</th><th class="num">Budget</th>
+    <th class="num">Failed-fix spend</th><th class="num">Flagged, recoverable</th><th class="num">SLA met / expected</th><th class="num">Open issues</th></tr></thead><tbody>
+    ${wards.map(w => `<tr class="click" data-ward="${esc(w.ward_code)}"><td><b>${esc(w.ward_code)}</b></td><td class="small muted">${esc(w.ward_name)}</td>
+      <td><div class="bar"><i class="${w.spend_inr>w.budget_inr?"over":""}" style="width:${w.spend_inr/maxB*100}%"></i>
+        <span style="position:absolute;top:-2px;bottom:-2px;left:${w.budget_inr/maxB*100}%;width:2px;background:var(--ink)"></span></div></td>
+      <td class="num">${inr(w.spend_inr)}</td><td class="num">${inr(w.budget_inr)}</td><td class="num">${inr(w.failed_spend_inr)}</td>
+      <td class="num">${inr(w.recoverable_inr)}</td><td class="num">${pct(w.sla_met)} / ${pct(w.sla_expected)}</td><td class="num">${w.open_issues}</td></tr>`).join("")}
+    </tbody></table></div><p class="small muted">Click a ward to open its money trail. "Expected" SLA accounts for how flood-prone the ward is, how severe the job was, and the rain on the day it was assigned.</p></div>`;
+  $("#t-city").onclick = e => { const tr = e.target.closest("[data-ward]"); if (tr){ wardSel.value = tr.dataset.ward; renderWard(); show("ward"); } };
+})();
+
+// ---------------- ward
+const wardOpts = D.wards.map(w => `<option value="${esc(w.ward_code)}">${esc(w.ward_code)} · ${esc(w.ward_name)}</option>`).join("");
+$("#t-ward").innerHTML = `<div class="controls"><label>Ward <select id="wardSel">${wardOpts}</select></label></div><div id="wardBody"></div>`;
+const wardSel = $("#wardSel"); wardSel.onchange = () => renderWard();
+function hbars(obj, max){ return Object.entries(obj).map(([k,v]) => `<div class="hb"><span>${esc(strip(k))}</span><div class="bar"><i style="width:${v/max*100}%"></i></div><span class="num small">${inr(v)}</span></div>`).join(""); }
+function renderWard(){
+  const k = wardSel.value, w = D.wards.find(x => x.ward_code===k);
+  const f = D.flags.filter(x => x.ward_code===k && x.confidence!=="Review" && x.confidence!=="Low");
+  const p = D.plan.filter(x => x.ward_code===k).sort((a,b)=>a.ward_rank-b.ward_rank).slice(0,5);
+  const [txt, src] = narr("ward", k);
+  const mx = Math.max(...Object.values(w.by_contractor), ...Object.values(w.by_method));
+  $("#wardBody").innerHTML = `
+  <div class="note">${esc(txt)}<div class="src">${src}</div></div>
+  <div class="grid k4" style="margin-top:14px">
+    <div class="card kpi"><div class="l">Spent / budget</div><div class="v">${inr(w.spend_inr)}</div><div class="n">of ${inr(w.budget_inr)} (${pct(w.utilisation)})</div></div>
+    <div class="card kpi"><div class="l">Fixes that failed within 30 days</div><div class="v">${inr(w.failed_spend_inr)}</div><div class="n">${pct(w.reopen)} of ${w.jobs} jobs</div></div>
+    <div class="card kpi"><div class="l">Flagged, possibly recoverable</div><div class="v">${inr(w.recoverable_inr)}</div><div class="n">over-billing + double billing + DLP road repairs</div></div>
+    <div class="card kpi"><div class="l">On time (SLA)</div><div class="v">${pct(w.sla_met)}</div><div class="n">expected ${pct(w.sla_expected)} · flood-prone index ${w.low_lying_index}</div></div>
+  </div>
+  <div class="grid two" style="margin-top:14px">
+    <div class="card"><h3>Spend by contractor</h3>${hbars(w.by_contractor, mx)}<h3 style="margin-top:16px">Spend by repair method</h3>${hbars(w.by_method, mx)}</div>
+    <div class="card"><h3>Next rupee: top priorities</h3>
+      <table><thead><tr><th>#</th><th>Fix</th><th class="num">Cost to BMC</th></tr></thead><tbody>
+      ${p.map(r => `<tr><td>${r.ward_rank}</td><td><b>${esc(r.category)}</b> · ${esc(r.road_name)}<div class="small muted">${esc(r.recommended_method)} · ${esc(r.why)}</div></td>
+      <td class="num">${r.cost_to_bmc_inr ? inr(r.cost_to_bmc_inr) : '<span class="pill p-info">DLP: free</span>'}</td></tr>`).join("") || '<tr><td colspan=3 class="muted">No open issues.</td></tr>'}
+      </tbody></table></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h3>Flags in this ward (${f.length})</h3>${flagTable(f)}</div>`;
+}
+function flagTable(f, limit=400){
+  return `<div class="scroll"><table><thead><tr><th>Work order</th><th>Flag</th><th>Contractor</th><th>Road</th><th class="num">Billed</th><th class="num">At issue</th><th>Why</th></tr></thead><tbody>
+  ${f.slice(0,limit).map(x => `<tr><td>${woLink(x.work_order_id)}</td><td>${flagPill(x)}<div class="small muted">${esc(x.confidence)}</div></td><td class="small">${esc(strip(x.contractor_name))}</td>
+  <td class="small">${esc(x.road_name)} <span class="muted">${esc(x.ward_code)}</span></td><td class="num">${inr(x.cost_inr)}</td><td class="num">${inr(x.amount_at_issue_inr)}</td><td class="small">${esc(x.reason)}</td></tr>`).join("")}
+  </tbody></table></div>${f.length>limit?`<p class="small muted">Showing ${limit} of ${f.length}. Download out/audit_flags.csv for all.</p>`:""}`;
+}
+
+// ---------------- audit
+(function audit(){
+  const types = [...new Set(D.flags.map(f=>f.flag))], conts = [...new Set(D.flags.map(f=>f.contractor_name))].sort();
+  $("#t-audit").innerHTML = `<div class="controls">
+    <select id="fType"><option value="">All flag types</option>${types.map(t=>`<option>${esc(t)}</option>`).join("")}</select>
+    <select id="fConf"><option value="">All confidence</option><option>High</option><option>Medium</option><option>Review</option><option>Low</option></select>
+    <select id="fWard"><option value="">All wards</option>${D.wards.map(w=>`<option>${esc(w.ward_code)}</option>`).join("")}</select>
+    <select id="fCont"><option value="">All contractors</option>${conts.map(c=>`<option value="${esc(c)}">${esc(strip(c))}</option>`).join("")}</select>
+    <span id="fCount" class="muted small"></span></div>
+    <p class="small muted">Every flag points to the work order behind it. Flags are prompts for review, not findings of wrongdoing. Normal jobs vary by up to ±30% around the rate card, so only bills more than 35% above it are flagged.</p>
+    <div class="card" id="fBody"></div>`;
+  const run = () => {
+    const t=$("#fType").value, c=$("#fConf").value, w=$("#fWard").value, k=$("#fCont").value;
+    const f = D.flags.filter(x => (!t||x.flag===t)&&(!c||x.confidence===c)&&(!w||x.ward_code===w)&&(!k||x.contractor_name===k))
+                     .sort((a,b)=>b.amount_at_issue_inr-a.amount_at_issue_inr);
+    $("#fCount").textContent = `${f.length} flags · ${inr(f.reduce((s,x)=>s+x.amount_at_issue_inr,0))} at issue`;
+    $("#fBody").innerHTML = flagTable(f, 300);
+  };
+  ["#fType","#fConf","#fWard","#fCont"].forEach(s => $(s).onchange = run); run();
+})();
+
+// ---------------- contractors
+(function contractors(){
+  const g = (l,v) => `<div><span class="grade g${v}">${v}</span><div>${l}</div></div>`;
+  $("#t-contractors").innerHTML = `<p class="small muted">Grades compare each contractor with what we'd <b>expect for the same work</b>: on-time rates are compared with jobs in equally flood-prone wards, at the same severity, on days with similar rain; re-open rates with jobs using the same repair method in similar wards. Doing more work does not lower a grade, because every measure is a rate.</p>
+  <div class="cgrid">${D.contractors.map(c => { const [txt, src] = narr("contractor", c.contractor_id); return `
+    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3 style="margin:0">${esc(strip(c.contractor_name))}</h3><span class="grade g${c.overall_grade}" title="Overall">${c.overall_grade}</span></div>
+    <div class="small muted">${c.jobs} jobs · ${c.wards} wards · ${inr(c.billed_inr)} billed</div>
+    <div class="dims">${g("Speed",c.speed_grade)}${g("Durability",c.durability_grade)}${g("Cost",c.cost_grade)}${g("Integrity",c.integrity_grade)}</div>
+    <table class="small"><tbody>
+      <tr><td>On time</td><td class="num">${pct(c.sla_met)}</td><td class="num muted">expected ${pct(c.sla_expected)}</td></tr>
+      <tr><td>Re-opened ≤30 days</td><td class="num">${pct(c.reopen)}</td><td class="num muted">expected ${pct(c.reopen_expected)}</td></tr>
+      <tr><td>Median bill vs rate card</td><td class="num">${(+c.median_cost_ratio).toFixed(2)}×</td><td class="num muted">${c.overbilled_jobs} jobs &gt;+35%</td></tr>
+      <tr><td>Possible double bills</td><td class="num">${c.double_billed_jobs}</td><td class="num muted">${inr(c.double_billed_inr)}</td></tr>
+    </tbody></table>
+    <p style="font-size:13.5px;margin:10px 0 0">${esc(txt)}</p><div class="small muted" style="margin-top:4px">${src}</div></div>`; }).join("")}</div>`;
+})();
+
+// ---------------- plan
+(function plan(){
+  const COMP = [["c_severity","Danger","#b3261e"],["c_accidents","Accidents","#d9822b"],["c_flood","Flood & tide","#3a7bd5"],["c_facilities","Hospitals & schools","#8e44ad"],
+                ["c_traffic","Traffic & buses","#6b8e23"],["c_history","Failed before","#7f6a5a"],["c_demand","Citizen demand","#16a085"]];
+  $("#t-plan").innerHTML = `<div class="controls"><label>Ward <select id="pWard"><option value="">Whole city (top 40)</option>${wardOpts}</select></label><span id="pInfo" class="small muted"></span></div>
+    <div class="legend">${COMP.map(([,l,c])=>`<span><b style="background:${c}"></b>${l}</span>`).join("")}</div>
+    <div class="card scroll" id="pBody"></div>
+    <div class="card" style="margin-top:14px"><h3>Which method to fund: price of a fix that lasts</h3><div id="mBody"></div></div>`;
+  const run = () => {
+    const k = $("#pWard").value;
+    let rows = k ? D.plan.filter(r => r.ward_code===k).sort((a,b)=>a.ward_rank-b.ward_rank) : [...D.plan].sort((a,b)=>a.city_rank-b.city_rank).slice(0,40);
+    if (k){ const w = D.wards.find(x=>x.ward_code===k); const need = rows.reduce((s,r)=>s+r.cost_to_bmc_inr,0);
+      $("#pInfo").textContent = `Remaining budget ${inr(Math.max(w.remaining_inr,0))}${w.remaining_inr<0?` (overspent by ${inr(-w.remaining_inr)}, so funded from recoveries of ${inr(w.recoverable_inr)})`:""} · open issues need ${inr(need)}`; }
+    else $("#pInfo").textContent = "";
+    $("#pBody").innerHTML = `<table><thead><tr><th>${k?"Rank":"City rank"}</th><th>Issue</th><th>Risk</th><th>Recommended fix</th><th class="num">Cost to BMC</th><th>Decision</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td class="num"><b>${k?r.ward_rank:r.city_rank}</b></td>
+      <td><b>${esc(r.category)}</b> · ${esc(r.road_name)} <span class="muted">${esc(r.ward_code)}</span><div class="small muted">${esc(r.why)}</div>
+        <div class="small muted">${r.complaints} complaint(s), open since ${String(r.first_reported).slice(0,10)} · ${esc(r.issue_id)}</div></td>
+      <td><b>${(+r.risk_score).toFixed(0)}</b><div class="stack" title="${COMP.map(([c,l])=>`${l}: ${r[c]}`).join(" · ")}">${COMP.map(([c,,col])=>`<i style="width:${r[c]}%;background:${col}"></i>`).join("")}</div></td>
+      <td class="small">${esc(r.recommended_method)}<div class="muted">re-opens ${pct(r.method_reopen_rate)} of the time</div></td>
+      <td class="num">${r.cost_to_bmc_inr?inr(r.cost_to_bmc_inr):'<span class="pill p-info">₹0 · DLP</span>'}</td>
+      <td><span class="pill ${r.decision==="Fund now"?"p-ok":"p-mute"}">${esc(r.decision)}</span><div class="small muted">${esc(r.who_pays)}</div></td></tr>`).join("")}</tbody></table>`;
+  };
+  $("#pWard").onchange = run; run();
+  const m = [...D.methods].sort((a,b)=>a.work_type.localeCompare(b.work_type)||a.reopen-b.reopen);
+  $("#mBody").innerHTML = `<p class="small muted">Price of a fix that lasts = standard cost ÷ share of jobs that did not re-open. A cheap patch that fails a third of the time is often the dearer choice.</p><div class="scroll"><table><thead><tr><th>Problem</th><th>Method</th><th class="num">Jobs</th><th class="num">Re-opened</th><th class="num">Standard cost</th><th class="num">Price of a fix that lasts</th><th></th></tr></thead><tbody>
+  ${m.map(r=>`<tr><td>${esc(r.work_type)}</td><td>${esc(r.repair_method)}</td><td class="num">${r.jobs}</td><td class="num">${pct(r.reopen)}</td><td class="num">${inr(r.std_cost_inr)}</td><td class="num">${inr(r.cost_per_lasting_fix)}</td><td>${r.recommended?'<span class="pill p-ok">Recommended</span>':""}</td></tr>`).join("")}</tbody></table></div>`;
+})();
+
+// ---------------- track
+(function track(){
+  $("#t-track").innerHTML = `<div class="controls"><input type="search" id="q" placeholder="Complaint number, e.g. BMC25-000005" list="cids"><button id="qrand" class="themebtn" style="float:none">Try a random one</button></div><div id="tBody" class="trail"></div>`;
+  const run = id => {
+    const c = C[id.trim().toUpperCase()];
+    if (!c){ $("#tBody").innerHTML = `<p class="muted">Type a complaint number like BMC25-000005.</p>`; return; }
+    let h = `<div class="step"><div class="t">1 · Complaint received ${esc(String(c.received_at).slice(0,16).replace("T"," "))} via ${esc(c.channel)}</div>
+      <div>"${esc(c.description)}"</div><div class="small muted">Language ${esc(c.language)} · ${c.upvotes} upvotes · status: ${esc(c.status)}</div></div>
+      <div class="step"><div class="t">2 · Cleaned up</div>Issue: <b>${esc(c.clean_category)}</b>${c.clean_category!==c.category_reported?` <span class="small muted">(citizen picked "${esc(c.category_reported)}")</span>`:""} · Ward <b>${esc(c.ward_final||"?")}</b> · Road ${esc(c.road_id_final||"not matched")}</div>`;
+    if (c.work_order_id){ const w = WO[c.work_order_id], fl = FLAGS_BY_WO[c.work_order_id]||[];
+      h += `<div class="step"><div class="t">3 · Work order ${woLink(w.work_order_id)}</div>${esc(strip(w.contractor_name))} did <b>${esc(w.repair_method)}</b> on ${esc(w.road_name)}, finished ${esc(String(w.completed_at).slice(0,10))}.
+        Billed <b>${inr(w.cost_inr)}</b> (rate card ${inr(w.expected_inr)}).</div>
+        <div class="step"><div class="t">4 · Did it work?</div>${w.sla_met==="Y"?'<span class="pill p-ok">On time</span>':'<span class="pill p-warn">Late</span>'} ${Math.round(w.hours_to_fix)} h vs ${w.sla_hours} h target ·
+        ${w.reopened_within_30d==="Y"?'<span class="pill p-bad">Failed within 30 days</span>':'<span class="pill p-ok">Held up 30 days</span>'}
+        ${fl.length?`<div style="margin-top:6px">${fl.map(f=>`${flagPill(f)} <span class="small">${esc(f.reason)}</span>`).join("<br>")}</div>`:""}</div>`;
+    } else { const p = D.plan.find(r => (r.complaint_ids||"").includes(c.complaint_id));
+      h += p ? `<div class="step"><div class="t">3 · Not fixed yet: merged into issue ${esc(p.issue_id)}</div>${p.complaints} complaint(s) about this. Rank <b>#${p.ward_rank}</b> in ward ${esc(p.ward_code)}'s plan · ${esc(p.recommended_method)} · ${esc(p.decision)} · ${esc(p.who_pays)}</div>`
+             : `<div class="step"><div class="t">3 · No work order</div>${esc(c.status)}</div>`; }
+    $("#tBody").innerHTML = h;
+  };
+  $("#q").oninput = e => run(e.target.value);
+  $("#qrand").onclick = () => { const ids = D.complaints.filter(c=>c.work_order_id||c.status==="Open"); const id = ids[Math.floor(Math.random()*ids.length)].complaint_id; $("#q").value = id; run(id); };
+  run("");
+})();
+
+// ---------------- method
+(function method(){
+  const L = D.summary.linker;
+  $("#t-method").innerHTML = `<div class="grid two">
+  <div class="card"><h3>1 · Connect: messy complaints to clean issues</h3>
+    <p class="small">Each complaint is classified from the strongest signal available. We ranked the signals by testing each against the ${L.complaints_with_work_order.toLocaleString()} complaints BMC had linked to a work order: photo description (100% accurate), English or helpline text (99%), the category the citizen picked (83%), then Hindi, Marathi or Hinglish app text. Noise like "Test" and "garbage not collected" is dropped. Locality aliases (including Devanagari) fill in missing wards, and road names in the text pick the road.</p>
+    <table class="small"><tbody>
+    <tr><td>Issue category accuracy</td><td class="num"><b>${pct(L.category_accuracy_cleaned)}</b></td><td class="muted">vs ${pct(L.category_accuracy_as_reported)} as reported by citizens</td></tr>
+    <tr><td>Ward accuracy</td><td class="num"><b>${pct(L.ward_accuracy)}</b></td><td class="muted">${L.ward_missing_filled} blank wards filled</td></tr>
+    <tr><td>Road name accuracy</td><td class="num"><b>${pct(L.road_name_accuracy)}</b></td><td class="muted">exact segment ${pct(L.segment_accuracy_with_gps)} with GPS</td></tr>
+    <tr><td>Open complaints → issues</td><td class="num"><b>${L.open_complaints} → ${L.open_issues_after_dedup}</b></td><td class="muted">merged by ward + road + problem</td></tr>
+    </tbody></table></div>
+  <div class="card"><h3>2 · Audit</h3><ul class="small">
+    <li><b>Over-billed</b>: bill more than 35% above the rate card (area × rate, or the per-job rate). Normal jobs fall within ±30%.</li>
+    <li><b>Possible double billing</b>: a job with no complaint behind it that repeats another job on the same road with the same method within 7 days. "High" means same contractor and identical area.</li>
+    <li><b>Paid during DLP</b>: BMC paid for work on a road still under its Defect Liability Period. Road-surface defects (potholes, paver blocks, cave-ins) are High; drainage and pumping on those roads are marked Review, since a road DLP may not cover them.</li>
+    <li>Recorded SLA flags were checked against the timestamps and all of them are consistent.</li></ul></div>
+  <div class="card"><h3>3 · Fair scorecards</h3><p class="small">Expected on-time rate = city average for jobs in the same flood-prone band, at the same severity target, on days with similar rain. Expected re-open rate = city average for the same repair method in the same band. A contractor is graded on the gap, so working in Kurla's floods or doing many jobs is not penalised. Overall = 25% speed, 35% durability, 25% cost, 15% integrity.</p></div>
+  <div class="card"><h3>4 · Next-rupee ranking</h3><p class="small">Risk (0 to 100) = danger of the problem type 25%, accidents on that road (weighted by severity, road-condition causes count fully) 15%, flood exposure (nearby hotspots × days rain beat their threshold, doubled on big-tide days for tide-sensitive spots) 15%, hospital and school access 13%, traffic, two-wheelers and bus routes 12%, earlier fixes that failed 10%, citizen demand 10%. The recommended method is the one with the lowest re-open rate for that problem. Roads under DLP are sent back to the original contractor at no cost to BMC. Wards that overspent fund their top items from the flagged recoveries.</p></div>
+  </div>
+  <p class="small muted" style="margin-top:14px">Claude's role: claude_layer.py turns each ward's and contractor's computed fact sheet into a plain-language note (English, Marathi or Hindi) that must cite work-order IDs and may not add numbers. The citizen bot answers "what happened to my complaint?" in the asker's own language. All figures come from the pipeline, not the model.</p>`;
+})();
+
+// ---------------- modal
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-wo]"); if (!a) { if (e.target.id==="modal") $("#modal").classList.remove("on"); return; }
+  e.preventDefault(); const w = WO[a.dataset.wo]; if (!w) return;
+  const fl = FLAGS_BY_WO[w.work_order_id]||[];
+  $("#modalbody").innerHTML = `<div style="display:flex;justify-content:space-between"><h3 class="mono">${esc(w.work_order_id)}</h3><a href="#" onclick="document.getElementById('modal').classList.remove('on');return false">Close</a></div>
+  <dl><dt>Ward · road</dt><dd>${esc(w.ward_code)} · ${esc(w.road_name)} (${esc(w.road_id)})${w.under_dlp==="Y"?' <span class="pill p-info">under DLP</span>':""}</dd>
+  <dt>Work</dt><dd>${esc(w.work_type)} → ${esc(w.repair_method)}, ${w.area_sqm} sqm</dd>
+  <dt>Contractor</dt><dd>${esc(strip(w.contractor_name))}</dd>
+  <dt>Assigned → done</dt><dd>${esc(String(w.assigned_at).slice(0,16).replace("T"," "))} → ${esc(String(w.completed_at).slice(0,16).replace("T"," "))}</dd>
+  <dt>Billed</dt><dd><b>${inr(w.cost_inr)}</b> vs rate card ${inr(w.expected_inr)} (${(+w.cost_ratio).toFixed(2)}×)</dd>
+  <dt>SLA</dt><dd>${Math.round(w.hours_to_fix)} h vs ${w.sla_hours} h · met: ${esc(w.sla_met)}</dd>
+  <dt>Held up?</dt><dd>${w.reopened_within_30d==="Y"?"No, re-opened within 30 days":"Yes"}</dd>
+  <dt>Complaints</dt><dd class="mono">${esc((w.linked_complaint_ids||"none linked").replaceAll("|",", "))}</dd>
+  <dt>Engineer remark</dt><dd>${esc(w.engineer_remark||"none")}</dd></dl>
+  ${fl.length?`<div style="margin-top:10px">${fl.map(f=>`<p>${flagPill(f)} ${esc(f.reason)}<br><span class="small muted">Evidence: ${esc(f.evidence)}</span></p>`).join("")}</div>`:""}`;
+  $("#modal").classList.add("on");
+});
+document.addEventListener("keydown", e => { if (e.key==="Escape") $("#modal").classList.remove("on"); });
+
+// ---------------- theme + init
+$("#theme").onclick = () => { const r = document.documentElement, cur = r.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  r.dataset.theme = cur==="dark"?"light":"dark"; try{localStorage.setItem("ftr-theme", r.dataset.theme)}catch(e){} };
+try{ const t = localStorage.getItem("ftr-theme"); if (t) document.documentElement.dataset.theme = t; }catch(e){}
+renderWard();
+let start = "city"; try{ start = localStorage.getItem("ftr-tab") || "city" }catch(e){}
+show(TABS.some(t=>t[0]===start)?start:"city");
+</script>
+</body>
+</html>

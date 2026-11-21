@@ -1,0 +1,6 @@
+# only the audit outputs the views read are committed
+*
+!.gitignore
+!audit_flags.csv
+!contractor_scorecard.csv
+!ward_summary.csv

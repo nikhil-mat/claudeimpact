@@ -1,8 +1,11 @@
 // Builds public/ward-officer/facts.json from the Claude Impact Lab event data.
 // All numbers are computed here, in code. The AI agents only write words around them.
 // Usage: node scripts/ward-officer/build-facts.mjs <path-to-Claude-Impact-Labs-data-2/data>
+// Audit flags (warranty/DLP, over-billed, double bills) come from the shared audit engine,
+// engine/out/audit_flags.csv (run engine/build.py first), so Ward Desk and the Corporator view agree.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import assert from 'node:assert'
 
 // Minimal RFC 4180 CSV parser (quotes, escaped quotes, newlines inside quotes).
@@ -42,37 +45,34 @@ const expected = (w) => {
   if (!r) return 0
   return num(r.standard_rate_inr) * (r.unit === 'per sqm' ? num(w.area_sqm) : 1)
 }
-const SURFACE = new Set(['Cold mix patch', 'Hot mix patch', 'Mastic asphalt', 'Paver blocks relaid'])
 // Complaint "kind", read from category plus text (about 18% of categories are wrong).
 const kind = (c) => {
   const s = `${c.category_reported} ${c.description} ${c.photo_description}`
   return /pothole|khadd|gadd|crater|cave|paver|गड्ढ|खड्ड/i.test(s) ? 'road' : /manhole|chamber|gutter lid|dhakkan|gutter ka|झाकण/i.test(s) ? 'manhole' : /water|flood|drain|nullah|paani/i.test(s) ? 'water' : 'other'
 }
-const OVERBILL_RATIO = 1.4// normal jobs vary 20-30% around the rate card (DATA_DICTIONARY)
+const OVERBILL_RATIO = 1.35 // engine threshold (engine/build.py RATE_TOLERANCE)
 
 // Heavy-rain days (any station >= 64.5 mm, IMD "Heavy" or worse) for fairness context.
 const heavyDays = new Set(rain.filter((r) => num(r.rainfall_mm) >= 64.5).map((r) => r.date))
 
-// ---- who-should-have-paid flags ----
+// ---- who-should-have-paid flags: from the shared audit engine ----
+const ENGINE_FLAGS = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'engine', 'out', 'audit_flags.csv')
+const engine = parseCsv(readFileSync(ENGINE_FLAGS, 'utf8'))
 const flags = []
-for (const w of wo) {
-  const cost = num(w.cost_inr), exp = expected(w), road = ROAD[w.road_id]
-  // Warranty covers the road surface only; pumping, desilting and pipeline digs are not the road builder's defect.
-  if (road?.under_dlp === 'Y' && SURFACE.has(w.repair_method)) flags.push({ type: 'warranty', wo: w.work_order_id, amount: cost, why: 'Road under defect liability period: the original road contractor should repair free, not a paid job' })
-  if (/trench/i.test(w.engineer_remark)) flags.push({ type: 'utility', wo: w.work_order_id, amount: cost, why: 'Engineer remark says utility trench: recover from the utility that dug' })
-  if (exp && cost / exp > OVERBILL_RATIO) flags.push({ type: 'overbill', wo: w.work_order_id, amount: Math.round(cost - exp), ratio: +(cost / exp).toFixed(2), why: `Billed ${(cost / exp).toFixed(2)}x the rate card` })
-}
-// Double bills: same road + method within 7 days, later one has no linked complaint.
-const byKey = {}
-for (const w of wo) (byKey[w.road_id + '|' + w.repair_method] ??= []).push(w)
-for (const list of Object.values(byKey)) {
-  list.sort((a, b) => a.assigned_at.localeCompare(b.assigned_at))
-  for (let i = 1; i < list.length; i++) {
-    const gap = (new Date(list[i].assigned_at) - new Date(list[i - 1].assigned_at)) / 864e5
-    if (gap <= 7 && !list[i].linked_complaint_ids)
-      flags.push({ type: 'double', wo: list[i].work_order_id, amount: num(list[i].cost_inr), twin: list[i - 1].work_order_id, why: `Same road and method as ${list[i - 1].work_order_id} ${gap.toFixed(1)} days earlier, no complaint linked` })
+for (const f of engine) {
+  const amount = num(f.amount_at_issue_inr)
+  if (f.flag === 'Paid during DLP' && f.confidence === 'High')
+    flags.push({ type: 'warranty', wo: f.work_order_id, amount, why: 'Road under defect liability period: the original road contractor should repair free, not a paid job' })
+  else if (f.flag === 'Over-billed vs rate card') {
+    const w = wo.find((x) => x.work_order_id === f.work_order_id), ratio = +(num(w.cost_inr) / expected(w)).toFixed(2)
+    flags.push({ type: 'overbill', wo: f.work_order_id, amount, ratio, why: `Billed ${ratio.toFixed(2)}x the rate card` })
+  } else if (f.flag === 'Possible double billing') {
+    const twin = (f.evidence.match(/twin (WO25-\d{5})/) ?? [])[1]
+    flags.push({ type: 'double', wo: f.work_order_id, amount, twin, why: f.reason })
   }
 }
+// Utility-trench remarks are shown for context but not counted (not part of the engine's audit).
+for (const w of wo) if (/trench/i.test(w.engineer_remark)) flags.push({ type: 'utility', wo: w.work_order_id, amount: num(w.cost_inr), why: 'Engineer remark says utility trench: recover from the utility that dug' })
 const WO = Object.fromEntries(wo.map((w) => [w.work_order_id, w]))
 assert.strictEqual(Object.keys(WO).length, wo.length, 'work_order_id must be unique')
 

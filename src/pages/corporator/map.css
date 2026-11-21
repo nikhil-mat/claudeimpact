@@ -36,3 +36,10 @@
 .cv-map-legend svg { width: 36px; height: 14px; display: inline-block; flex: none; }
 .cv-map-legend svg.mk { width: 14px; }
 .cv-map-legend .lg-title { color: var(--f-ink); font-weight: 600; }
+
+/* Leaflet map (real tiles) */
+.cv-map-leaflet { height: 440px; border: 1px solid var(--f-rule); border-radius: 6px; overflow: hidden; z-index: 0; }
+@media (max-width: 800px) { .cv-map-leaflet { height: 320px; } }
+.cv-map-leaflet .cv-mk { background: none; border: 0; }
+.cv-map-leaflet .cv-mk svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.cv-map-leaflet .leaflet-tooltip { font: inherit; font-size: var(--t-small); color: var(--f-ink); background: var(--f-sheet); border: 1px solid var(--f-rule); box-shadow: none; }

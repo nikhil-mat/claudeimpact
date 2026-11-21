@@ -1,0 +1,12 @@
+/* Tabs on the Ward Officer view: Ward Desk | Money trail & audit | Complaint map */
+.wo-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin: 0 0 16px; border-bottom: 1px solid rgba(127, 127, 127, .25); }
+.wo-tabs button {
+  font: inherit; font-weight: 600; padding: 9px 14px; border: 0; border-bottom: 2px solid transparent;
+  background: none; color: inherit; opacity: .65; cursor: pointer; margin-bottom: -1px;
+}
+.wo-tabs button:hover { opacity: 1; }
+.wo-tabs button.on { opacity: 1; border-bottom-color: currentColor; }
+
+/* the dashboard and map need the full width and most of the screen height */
+#root:has(.wo-wide) .page { max-width: none; }
+.wo-frame { display: block; width: 100%; height: calc(100vh - 150px); min-height: 560px; border: 1px solid rgba(127, 127, 127, .25); border-radius: 12px; background: #0b0716; }
