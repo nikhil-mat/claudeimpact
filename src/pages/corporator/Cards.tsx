@@ -12,6 +12,8 @@ function group(rows: WorkOrder[], key: (w: WorkOrder) => string) {
 }
 
 const TOP = 5
+// The header says the data is synthetic; drop the per-name suffix in tables so names fit on one line.
+const short = (name: string) => name.replace(/\s*\(synthetic\)$/, '')
 const More = ({ n }: { n: number }) => (n > 0 ? <p className="cv-muted cv-more-line">+{n} more in evidence</p> : null)
 
 export function WhereCard({ workOrders }: { workOrders: WorkOrder[] }) {
@@ -21,7 +23,7 @@ export function WhereCard({ workOrders }: { workOrders: WorkOrder[] }) {
       .map(([k, rs]) => ({ k, n: rs.length, s: rs.reduce((a, w) => a + w.cost_inr, 0) }))
       .sort((a, b) => b.s - a.s)
     return (
-    <>
+    <div className="cv-tblock">
     <table className="cv-table">
       <thead>
         <tr>
@@ -36,7 +38,7 @@ export function WhereCard({ workOrders }: { workOrders: WorkOrder[] }) {
           .slice(0, TOP)
           .map((r) => (
             <tr key={r.k}>
-              <td>{r.k}</td>
+              <td title={r.k}>{short(r.k)}</td>
               <td className="r cv-num">{r.n}</td>
               <td className="r cv-num">{formatInr(r.s)}</td>
               <td className="r cv-num">{pct(total ? r.s / total : 0)}</td>
@@ -45,11 +47,11 @@ export function WhereCard({ workOrders }: { workOrders: WorkOrder[] }) {
       </tbody>
     </table>
     <More n={all.length - TOP} />
-    </>
+    </div>
     )
   }
   return (
-    <div className="cv-card">
+    <div className="cv-card cv-card-where">
       <div className="cv-head">
         <h3>Where did it go?</h3>
         <SourceChip
@@ -142,8 +144,8 @@ export function LastCard({
             .slice(0, TOP)
             .map((r) => (
               <tr key={r.name}>
-                <td>
-                  {r.name} <span className="cv-muted">(since {r.since})</span>
+                <td title={r.name}>
+                  {short(r.name)} <span className="cv-muted cv-since">since {r.since}</span>
                 </td>
                 <td className="r cv-num">{r.jobs}</td>
                 <td className="r cv-num">{r.f}</td>
