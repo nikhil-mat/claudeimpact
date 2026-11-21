@@ -13,15 +13,15 @@ export function SearchFilter({ paramName = 'q', placeholder = 'Search...' }: Sea
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [value, setValue] = useState(searchParams.get(paramName) || '')
+  const [value, setValue] = useState(searchParams?.get(paramName) || '')
 
   useEffect(() => {
-    setValue(searchParams.get(paramName) || '')
+    setValue(searchParams?.get(paramName) || '')
   }, [searchParams, paramName])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams?.toString() || '')
     if (value.trim()) {
       params.set(paramName, value.trim())
     } else {

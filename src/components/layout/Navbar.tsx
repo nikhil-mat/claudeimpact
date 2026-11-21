@@ -15,7 +15,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ roleName, accent, basePath, navItems }: NavbarProps) {
-  const pathname = usePathname()
+  const pathname = usePathname() || ''
   const [mobileOpen, setMobileOpen] = useState(false)
 
   function isActive(itemPath: string): boolean {

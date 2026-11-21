@@ -11,10 +11,10 @@ export function WardFilter({ wards, paramName = 'ward' }: WardFilterProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const current = searchParams.get(paramName) || ''
+  const current = searchParams?.get(paramName) || ''
 
   function handleChange(value: string) {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams?.toString() || '')
     if (value) {
       params.set(paramName, value)
     } else {
