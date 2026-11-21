@@ -22,7 +22,7 @@ import './citizen/citizen.css'
 
 // Citizen view (mobile-first). Flow: mock DigiLocker login → pick ward → report → my complaints → detail.
 // Screens are internal state (the app router only matches top-level paths).
-type Screen = 'report' | 'success' | 'complaints' | 'detail' | 'ward'
+type Screen = 'report' | 'success' | 'complaints' | 'detail' | 'ward' | 'map'
 
 const titles: Record<Screen, string> = {
   report: 'Report a problem',
@@ -30,6 +30,7 @@ const titles: Record<Screen, string> = {
   complaints: 'My complaints',
   detail: 'Complaint',
   ward: 'Change ward',
+  map: 'Complaint map',
 }
 
 export default function CitizenView() {
@@ -106,6 +107,9 @@ export default function CitizenView() {
           </button>
           <button className={screen === 'complaints' || screen === 'detail' ? 'active' : ''} onClick={() => go('complaints')}>
             My complaints <span className={`count ${needsAction ? 'alert' : ''}`}>{complaints.length}</span>
+          </button>
+          <button className={screen === 'map' ? 'active' : ''} onClick={() => go('map')}>
+            Complaint map <span className="muted small">{ward?.id}</span>
           </button>
           <button className={screen === 'ward' ? 'active' : ''} onClick={() => go('ward')}>
             Change ward <span className="muted small">{ward?.name}</span>
@@ -221,6 +225,15 @@ export default function CitizenView() {
             saveList(complaints.map((x) => (x.id === c.id ? c : x)))
             setNow(Date.now())
           }}
+        />
+      )}
+
+      {screen === 'map' && (
+        // Same complaint map as the Ward Officer view (public/ward-officer/rupee/heatmap.html), opened on the citizen's ward.
+        <iframe
+          className="citizen-map"
+          title={`Complaint map, ward ${ward.id}`}
+          src={`${import.meta.env.BASE_URL}ward-officer/rupee/heatmap.html?ward=${encodeURIComponent(ward.id)}`}
         />
       )}
 

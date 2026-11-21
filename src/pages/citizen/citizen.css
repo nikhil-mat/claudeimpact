@@ -1038,3 +1038,6 @@ button.complaint {
 .app-bar h1 {
   text-align: center;
 }
+
+/* Complaint map screen: the shared map page, filling the rest of the phone column */
+.citizen-map { flex: 1; width: 100%; min-height: calc(100svh - 64px); border: 0; display: block; background: #0b0716; }
