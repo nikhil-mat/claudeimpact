@@ -1,10 +1,11 @@
 import PageShell from './PageShell'
+import WardDesk from './ward-officer/WardDesk'
 
-// Ward Officer view — planned, comes after the Citizen view.
+// Ward Officer view: "Ward Desk". Sections live in ./ward-officer/ (see its README).
 export default function WardOfficerView() {
   return (
     <PageShell title="Ward Officer">
-      <p className="placeholder">Coming soon.</p>
+      <WardDesk />
     </PageShell>
   )
 }

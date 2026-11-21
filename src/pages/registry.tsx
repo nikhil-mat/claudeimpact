@@ -64,6 +64,6 @@ export const pages: PageEntry[] = [
     title: 'Ward Officer',
     description: 'Manage, assign and resolve ward complaints.',
     component: WardOfficerView,
-    status: 'planned',
+    status: 'active',
   },
 ]
